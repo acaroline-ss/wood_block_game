@@ -18,4 +18,9 @@ Chekpoints:
       (5) Objetivo: acabar com uma matriz (tabuleiro) completamente vazia
       (6) Opções de Métodos de pesquisa: breathd first; depth first; cost; A*; etc.
       (7)  
-      
+
+
+Comentários da Alice do código já escrito :
+1) as diferentes imports para gerir as files no main não funcionam and I DON'T KNOW WHY.
+2) No human mode está quase tudo bom, só (EASY TO FIX, SÓ UM LEMBRETE) as pecas estão a blink weirdly e é muito sensível...
+3) PC mode não funciona por enquanto - so figure it out... + discutir com professora, do objetivo do jogo (muito complicado para os algoritmos de procura ? infinito ?).
