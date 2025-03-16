@@ -2,8 +2,9 @@
 Este projeto busca analisar o algoritmo do Wood Block, explorando sua lógica de movimentação e remoção de blocos. Além disso, investiga a implementação de IA para otimizar jogadas, prever posicionamentos e desenvolver estratégias eficientes dentro do jogo.
 
 
-
-
+Ideia geral do trabalho: ao entrar no jogo, o utilizador poderá escolher entre user mode (ele é que joga) e pc mode (a IA é que joga). Se escolher o user mode: código da Alice. Se escolher pc mode, poderá novamente escolher entre diversos métodos de pesquisa (como breadth first; depth first; A*; etc.). 
+Ideias adicionais: Caso o utilizador tente colocar uma peça de uma forma que ultrapassa os limites do tabuleiro, poderá aparecer uma mensagem como  ou "The piece doesn't fit within the limits of the board, duh"
+. Também podemos colocar outras mensagens insultuosas ao longo do jogo, como "Of all the options, THAT'S the search method you choose?". Além disso, poderíamos fazer com que para cada método de pesquisa sejam apresentados dados que reflitam a sua eficácia, como a rapidez com que chegou à solução, o custo associado, a memória ocupada, etc.
 
 Chekpoints:
 
