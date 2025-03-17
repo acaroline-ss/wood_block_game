@@ -21,3 +21,7 @@ SHAPES = [
 # Grid settings
 GRID_SIZE = 5  # Default size (can be changed)
 BLOCK_SIZE = 40
+
+
+def sum(a,b) :
+    return a +b
