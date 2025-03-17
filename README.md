@@ -27,9 +27,9 @@ Comentários da Alice do código já escrito :
 
 Organizacao (bia)
 * fazemos essa parte a mao (garantindo que tenhamos um nivel de solucao
-  1- matriz preenchida
-  2- retiramos as pecas (que serao as geradas)
-  3- geramos algumas dessas pecas aleatoriamente em cada jogada
+  * matriz preenchida
+  * retiramos as pecas (que serao as geradas)
+  * geramos algumas dessas pecas aleatoriamente em cada jogada
 
 * estado inicial: matriz atribuida da 1 fase
 * operadores: pecas disponibilizadas
