@@ -31,9 +31,9 @@ Organizacao (bia)
 2- retiramos as pecas (que serao as geradas)
 3- geramos algumas dessas pecas aleatoriamente em cada jogada
 
-  a) estado inicial: matriz atribuida da 1 fase
-  b) operadores: pecas disponibilizadas
-  c) estado final: matriz vazia
+a) estado inicial: matriz atribuida da 1 fase
+b) operadores: pecas disponibilizadas
+c) estado final: matriz vazia
 
   * NIVEIS:
   * nivel 1: 4X4 (MENOS PECAS RETIRADAS E MENOS PROXIMAS)
