@@ -25,6 +25,12 @@ Comentários da Alice do código já escrito :
 2) No human mode está quase tudo bom, só (EASY TO FIX, SÓ UM LEMBRETE) as pecas estão a blink weirdly e é muito sensível... - CAROL VER ISSO !!!!
 3) implementar os niveis !!! (initial state, have to be able to NOT be solvable, ...)
 4) PC mode não funciona por enquanto - so figure it out... + discutir com professora, do objetivo do jogo (muito complicado para os algoritmos de procura ? infinito ?).
+5) review if rotation or not ??
+6) the three blocks need to be used before other are porposed ???
+7) implement streaks (linha effacee de suite = multiplication des points
+8) supprime pas seulement les lignes mais aussi carrées 3*3 dans niveaux tableux tailles 6*6
+9) placer un bloc donnes des points ?
+10) points = seulement in human mode ???
 
 Organizacao (bia)
 * fazemos essa parte a mao (garantindo que tenhamos um nivel de solucao
