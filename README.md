@@ -27,15 +27,15 @@ Comentários da Alice do código já escrito :
 
 Organizacao (bia)
 * fazemos essa parte a mao (garantindo que tenhamos um nivel de solucao
-1- matriz preenchida
-2- retiramos as pecas (que serao as geradas)
-3- geramos algumas dessas pecas aleatoriamente em cada jogada
+  1- matriz preenchida
+  2- retiramos as pecas (que serao as geradas)
+  3- geramos algumas dessas pecas aleatoriamente em cada jogada
 
-  * estado inicial: matriz atribuida da 1 fase
-  * operadores: pecas disponibilizadas
-  * estado final: matriz vazia
+* estado inicial: matriz atribuida da 1 fase
+* operadores: pecas disponibilizadas
+* estado final: matriz vazia
 
-  * NIVEIS:
+* NIVEIS:
   * nivel 1: 4X4 (MENOS PECAS RETIRADAS E MENOS PROXIMAS)
   * nivel 2: 5x5 (mais pecas retiradas e mais proximas
   * nivel 3: 6x6 (ainda mais pecas retiradas e ainda mais pecas proximas
