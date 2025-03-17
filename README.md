@@ -21,9 +21,10 @@ Chekpoints:
 
 
 Comentários da Alice do código já escrito :
-1) as diferentes imports para gerir as files no main não funcionam and I DON'T KNOW WHY.
-2) No human mode está quase tudo bom, só (EASY TO FIX, SÓ UM LEMBRETE) as pecas estão a blink weirdly e é muito sensível...
-3) PC mode não funciona por enquanto - so figure it out... + discutir com professora, do objetivo do jogo (muito complicado para os algoritmos de procura ? infinito ?).
+1) as diferentes imports para gerir as files no main não funcionam and I DON'T KNOW WHY. - enviar mail a miriam
+2) No human mode está quase tudo bom, só (EASY TO FIX, SÓ UM LEMBRETE) as pecas estão a blink weirdly e é muito sensível... - CAROL VER ISSO !!!!
+3) implementar os niveis !!! (initial state, have to be able to NOT be solvable, ...)
+4) PC mode não funciona por enquanto - so figure it out... + discutir com professora, do objetivo do jogo (muito complicado para os algoritmos de procura ? infinito ?).
 
 Organizacao (bia)
 * fazemos essa parte a mao (garantindo que tenhamos um nivel de solucao
