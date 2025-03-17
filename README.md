@@ -24,3 +24,20 @@ Comentários da Alice do código já escrito :
 1) as diferentes imports para gerir as files no main não funcionam and I DON'T KNOW WHY.
 2) No human mode está quase tudo bom, só (EASY TO FIX, SÓ UM LEMBRETE) as pecas estão a blink weirdly e é muito sensível...
 3) PC mode não funciona por enquanto - so figure it out... + discutir com professora, do objetivo do jogo (muito complicado para os algoritmos de procura ? infinito ?).
+
+Organizacao (bia)
+* fazemos essa parte a mao (garantindo que tenhamos um nivel de solucao
+1- matriz preenchida
+2- retiramos as pecas (que serao as geradas)
+3- geramos algumas dessas pecas aleatoriamente em cada jogada
+
+  a) estado inicial: matriz atribuida da 1 fase
+  b) operadores: pecas disponibilizadas
+  c) estado final: matriz vazia
+
+  * NIVEIS:
+  * nivel 1: 4X4 (MENOS PECAS RETIRADAS E MENOS PROXIMAS)
+  * nivel 2: 5x5 (mais pecas retiradas e mais proximas
+  * nivel 3: 6x6 (ainda mais pecas retiradas e ainda mais pecas proximas
+
+
