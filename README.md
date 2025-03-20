@@ -9,7 +9,7 @@ Ideias adicionais: Caso o utilizador tente colocar uma peça de uma forma que ul
 Chekpoints:
 
 - Trabalho até agora desenvolvido: parte da interface e jogo em user mode;
-- Bibliografia: https://www.youtube.com/watch?v=RxWS5h1UfI4; https://www.youtube.com/watch?v=TnpoBCFDo88
+- Bibliografia: https://www.youtube.com/watch?v=RxWS5h1UfI4; https://www.youtube.com/watch?v=TnpoBCFDo88; https://github.com/RedCuckoo/wood-block-puzzle; https://youtu.be/V9MbQ2Xl4CE?si=rbN3luVc5UlX8Vaz
 - Formulação do jogo como um problema de pesquisa:
       (1) Representação dos estados: matriz + coordenadas?
       (2) Estado inicial: matriz vazia
