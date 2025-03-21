@@ -9,16 +9,46 @@ def get_rotations(block):
         rotations.append(block)
     return rotations
 
-def can_place_block(block, x, y, grid, GRID_SIZE):
+def can_place_block(block, x, y, grid, GRID_SIZE, tolerance=2):
+    """
+    Verifica se o bloco pode ser colocado na posição (x, y) sem sobrepor outras peças.
+    """
     for row in range(len(block)):
         for col in range(len(block[row])):
-            if block[row][col]:
-                if (x + col < 0 or x + col >= GRID_SIZE or 
-                    y + row < 0 or y + row >= GRID_SIZE or
-                    grid[y + row][x + col] != BLACK):
-                    return False
-    return True
+            if block[row][col]:  # Se a célula do bloco estiver ocupada
+                # Calcula a posição no grid
+                grid_x = x + col
+                grid_y = y + row
 
+                # Verifica se a posição está dentro dos limites do grid
+                if (grid_x < 0 or grid_x >= GRID_SIZE or
+                    grid_y < 0 or grid_y >= GRID_SIZE):
+                    return False
+
+                # Verifica se a célula do grid já está ocupada
+                if grid[grid_y][grid_x] != BLACK:
+                    return False  # Não pode sobrepor outra peça
+    return True  # Todas as células estão livres
+
+def snap_to_grid(x, y, block, grid, GRID_SIZE, snap_range=20):
+    """
+    Ajusta a posição (x, y) para o centro da célula mais próxima no grid,
+    dentro de uma área de captura (snap_range), e verifica se a posição é válida.
+    """
+    # Calcula a célula mais próxima
+    cell_x = (x // BLOCK_SIZE) * BLOCK_SIZE + BLOCK_SIZE // 2
+    cell_y = (y // BLOCK_SIZE) * BLOCK_SIZE + BLOCK_SIZE // 2
+
+    # Converte as coordenadas de tela para coordenadas do grid
+    grid_x = cell_x // BLOCK_SIZE
+    grid_y = cell_y // BLOCK_SIZE
+
+    # Verifica se a posição ajustada é válida (não causa sobreposição)
+    if can_place_block(block, grid_x, grid_y, grid, GRID_SIZE):
+        return grid_x, grid_y  # Retorna a posição ajustada e válida
+    else:
+        return None  # Retorna None se a posição não for válida
+    
 def place_block(block, x, y, color, grid, GRID_SIZE):
     for row in range(len(block)):
         for col in range(len(block[row])):
