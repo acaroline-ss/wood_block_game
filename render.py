@@ -21,12 +21,18 @@ def draw_blocks(screen, blocks):
 
 def render(screen, grid, blocks, score, GRID_SIZE):
     """
-    Render the entire game state (grid, blocks, and score).
+    Renderiza o estado do jogo de forma otimizada.
     """
+    # Limpa a tela com a cor de fundo
     screen.fill(WHITE)
-    draw_grid(screen, grid, GRID_SIZE)  # Pass GRID_SIZE to draw_grid
+
+    # Desenha o grid
+    draw_grid(screen, grid, GRID_SIZE)
+
+    # Desenha os blocos disponíveis
     draw_blocks(screen, blocks)
+
+    # Desenha o score
     font = pygame.font.SysFont("Arial", 24)
     text = font.render(f"Score: {score}", True, BLACK)
     screen.blit(text, (10, 10))
-    pygame.display.flip()
