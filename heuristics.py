@@ -1,15 +1,15 @@
 from cst import *
 from utils import *
 
-def heuristic_filled_cells(grid, blocks=None):
+def heuristic_filled_cells(grid):
     return sum(cell != BLACK for row in grid for cell in row)
 
 def heuristic_remaining_blocks(blocks):
     return len(blocks)
 
-def combined_heuristic_empty_grid(grid, blocks):
+def combined_heuristic_empty_grid(grid):
     filled_cells = sum(cell != BLACK for row in grid for cell in row)
-    remaining_blocks = len(blocks)
+    remaining_blocks = len([block for block in grid if block != BLACK])  # Adjust this as needed
     return filled_cells + remaining_blocks
 
 def heuristic_block_removal(grid, blocks):

@@ -6,9 +6,7 @@ from utils import *
 
 # Generate a random block
 def generate_block(level):
-    block = random.choice(LEVEL_BLOCKS[level])
-    color = random.choice(COLORS)
-    return block, color
+    return random.choice(LEVEL_BLOCKS[level])
 
 # State representation
 class State:
@@ -20,21 +18,19 @@ class State:
     def is_goal(self):
         return all(cell == BLACK for row in self.grid for cell in row)
 
-    def get_successors(self,level):
-        print("get_successors called!")
+    def get_successors(self, level):
         successors = []
         if not self.blocks:
             print("No blocks left!")
             return successors
-        block, color = self.blocks[0]
-        for rotation in get_rotations(block):
-            for x in range(GRID_SIZE):  # GRID_SIZE is now updated dynamically
-                for y in range(GRID_SIZE):
-                    if can_place_block(rotation, x, y, self.grid):
+        for block, color in self.blocks:
+            for x in range(GRID_SIZE - len(block) + 1):
+                for y in range(GRID_SIZE - len(block[0]) + 1):
+                    if can_place_block(block, x, y, self.grid, GRID_SIZE):
                         new_grid = [row[:] for row in self.grid]
-                        place_block(rotation, x, y, color, new_grid)
-                        new_blocks = self.blocks[1:]
-                        new_blocks.append(generate_block(level))
+                        place_block(block, x, y, color, new_grid, GRID_SIZE)
+                        new_blocks = self.blocks.copy()
+                        new_blocks.remove((block, color))
                         successors.append(State(new_grid, new_blocks, self.moves + 1))
         return successors
 

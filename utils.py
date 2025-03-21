@@ -10,9 +10,6 @@ def get_rotations(block):
     return rotations
 
 def can_place_block(block, x, y, grid, GRID_SIZE, tolerance=2):
-    """
-    Verifica se o bloco pode ser colocado na posição (x, y) sem sobrepor outras peças.
-    """
     for row in range(len(block)):
         for col in range(len(block[row])):
             if block[row][col]:  # Se a célula do bloco estiver ocupada
@@ -30,31 +27,13 @@ def can_place_block(block, x, y, grid, GRID_SIZE, tolerance=2):
                     return False  # Não pode sobrepor outra peça
     return True  # Todas as células estão livres
 
-def snap_to_grid(x, y, block, grid, GRID_SIZE, snap_range=20):
-    """
-    Ajusta a posição (x, y) para o centro da célula mais próxima no grid,
-    dentro de uma área de captura (snap_range), e verifica se a posição é válida.
-    """
-    # Calcula a célula mais próxima
-    cell_x = (x // BLOCK_SIZE) * BLOCK_SIZE + BLOCK_SIZE // 2
-    cell_y = (y // BLOCK_SIZE) * BLOCK_SIZE + BLOCK_SIZE // 2
-
-    # Converte as coordenadas de tela para coordenadas do grid
-    grid_x = cell_x // BLOCK_SIZE
-    grid_y = cell_y // BLOCK_SIZE
-
-    # Verifica se a posição ajustada é válida (não causa sobreposição)
-    if can_place_block(block, grid_x, grid_y, grid, GRID_SIZE):
-        return grid_x, grid_y  # Retorna a posição ajustada e válida
-    else:
-        return None  # Retorna None se a posição não for válida
-    
 def place_block(block, x, y, color, grid, GRID_SIZE):
     for row in range(len(block)):
         for col in range(len(block[row])):
             if block[row][col]:
                 grid[y + row][x + col] = color
                 print(f"Placed block at ({x + col}, {y + row})")
+
 
 def no_valid_moves_left(grid, blocks, GRID_SIZE):
     for block, color in blocks:
@@ -113,3 +92,18 @@ def place_random_block(grid, blocks):
         remaining_blocks.remove((block, color))
     print("No valid placement found for any block!")
     return grid, blocks
+
+def snap_to_grid(x, y, block, grid, GRID_SIZE, snap_range=20):
+    # Calculate the nearest cell
+    cell_x = round(x / BLOCK_SIZE) * BLOCK_SIZE
+    cell_y = round(y / BLOCK_SIZE) * BLOCK_SIZE
+
+    grid_x = cell_x // BLOCK_SIZE
+    grid_y = cell_y // BLOCK_SIZE
+
+    # Check if the adjusted position is valid (does not cause overlap)
+    if can_place_block(block, grid_x, grid_y, grid, GRID_SIZE):
+        return grid_x, grid_y  # Return the adjusted and valid position
+    else:
+        return None  # Return None if the position is not valid
+    

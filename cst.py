@@ -11,24 +11,25 @@ HEIGHT = 600  # TODO
 GRID_SIZE = 4  # Default grid size for Level 1
 BLOCK_SIZE = 40  # TODO: Adjust as needed
 
+
 # Level-specific blocks
 LEVEL_BLOCKS = {
     1: [
-        [[1, 1, 1]],  # (1,3) horizontal line
-        [[1], [1], [1]],  # (3,1) vertical line
-        [[1, 1], [0, 1]],  # Triangle corner
-        [[1, 1], [1, 1]],  # (2,2) square
+        ([[1, 1, 1]], (255, 0, 0)),  # (1,3) horizontal line, red
+        ([[1], [1], [1]], (0, 255, 0)),  # (3,1) vertical line, green
+        ([[1, 1], [0, 1]], (0, 0, 255)),  # Triangle corner, blue
+        ([[1, 1], [1, 1]], (255, 255, 0))  # (2,2) square, yellow
     ],
     2: [
-        [[1, 1, 1, 1]],  # (1,4) horizontal line
-        [[1], [1], [1], [1]],  # (4,1) vertical line
-        [[1, 1], [0, 1]],  # Triangle corner
-        [[1, 1], [1, 1]],  # (2,2) square
+        ([[1, 1, 1, 1]], (255, 0, 0)),  # (1,4) horizontal line, red
+        ([[1], [1], [1], [1]], (0, 255, 0)),  # (4,1) vertical line, green
+        ([[1, 1], [0, 1]], (0, 0, 255)),  # Triangle corner, blue
+        ([[1, 1], [1, 1]], (255, 255, 0))  # (2,2) square, yellow
     ],
     3: [
-        [[1, 1, 1]],  # (1,3) horizontal line
-        [[1], [1], [1], [1], [1]],  # (5,1) vertical line
-        [[1, 1], [1, 1], [1, 1]],  # (2,3) rectangle
-        [[1, 1, 0], [0, 1, 1]],  # (1,1,1,1) Z-shape
+        ([[1, 1, 1]], (255, 0, 0)),  # (1,3) horizontal line, red
+        ([[1], [1], [1], [1], [1]], (0, 255, 0)),  # (5,1) vertical line, green
+        ([[1, 1], [1, 1], [1, 1]], (0, 0, 255)),  # (2,3) rectangle, blue
+        ([[1, 1, 0], [0, 1, 1]], (255, 255, 0))  # (1,1,1,1) Z-shape, yellow
     ],
 }
