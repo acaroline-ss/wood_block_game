@@ -4,12 +4,12 @@ BLACK = (0, 0, 0)
 COLORS = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255)]  # red, green, blue, yellow, purple
 
 # Sizes
-WIDTH = 800  # TODO: WHAT IS THIS FOR
-HEIGHT = 600  # TODO
+WIDTH = 800  #screen width
+HEIGHT = 600  #screen height
 
 # Grid settings
 GRID_SIZE = 4  # Default grid size for Level 1
-BLOCK_SIZE = 40  # TODO: Adjust as needed
+BLOCK_SIZE = 40  #
 
 
 # Level-specific blocks
