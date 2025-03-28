@@ -41,7 +41,7 @@ LEVEL_PRE_FILLED = {
 
 # Initialize Pygame
 pygame.init()  # Start the Pygame engine
-screen = pygame.display.set_mode((WIDTH, HEIGHT))  # Create the game window
+screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF)  # Create the game window
 pygame.display.set_caption("Wood Block Puzzle")  # Set the window title
 
 # Game state variables
