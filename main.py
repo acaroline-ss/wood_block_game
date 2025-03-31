@@ -11,7 +11,8 @@ from search import *
 LEVEL_GRID_SIZES = {
     1: 4,  # Level 1: 4x4 grid
     2: 5,  # Level 2: 5x5 grid
-    3: 6   # Level 3: 6x6 grid
+    3: 6,  # Level 3: 6x6 grid
+    4: 2 # facullll
 }
 
 # Pre-filled grids for each level
@@ -32,16 +33,20 @@ LEVEL_PRE_FILLED = {
     3: [  # Level 3 grid with some pre-filled cells
         [1, 1, 0, 0, 0, 0],
         [1, 1, 0, 1, 1, 1],
-        [0, 0, 0, 0, 1, 0],
         [0, 0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 1, 1],
         [0, 0, 0, 0, 1, 0],
         [0, 1, 0, 0, 0, 0]
+    ],
+    4: [
+        [1, 0],
+        [0, 0]
     ]
 }
 
 # Initialize Pygame
 pygame.init()  # Start the Pygame engine
-screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.DOUBLEBUF)  # Create the game window
+screen = pygame.display.set_mode((WIDTH, HEIGHT))  # Create the game window
 pygame.display.set_caption("Wood Block Puzzle")  # Set the window title
 
 # Game state variables
@@ -164,9 +169,10 @@ def human_mode(level):
 def pc_mode(algorithm, heuristic=None, level=None):
     global grid, blocks, score
     initialize_level(level)  # Initialize the level
+    initial_state = State([row.copy() for row in grid], blocks.copy(), GRID_SIZE)  # Pass GRID_SIZE
 
-    # Create the initial game state
-    initial_state = State([row.copy() for row in grid], blocks.copy())
+    # Start timing the algorithm
+    start_time = time.time()
 
     # Run the selected search algorithm
     if algorithm == "bfs":
@@ -180,6 +186,10 @@ def pc_mode(algorithm, heuristic=None, level=None):
     else:
         print("Invalid algorithm!")
         return
+    
+    # Calculate elapsed time
+    end_time = time.time()
+    elapsed_time = end_time - start_time
 
     if solution_state:  # If a solution is found
         # Visualize the solution path
@@ -189,6 +199,16 @@ def pc_mode(algorithm, heuristic=None, level=None):
             path.append(current_state)
             current_state = current_state.parent  # Traverse the path backward
 
+        # Reverse to show moves from initial to goal
+        path = path[::-1]
+
+        print(f"\nSolution Path ({len(path)-1} moves):")
+        for idx, state in enumerate(path[1:]):  # Skip initial state
+            action = state.action
+            if action:
+                block, color, x, y = action
+                print(f"Move {idx + 1}: Place {block} (color: {color}) at ({x}, {y})")
+        
         # Reverse the path to show from initial to goal state
         for state in reversed(path):
             grid = [row.copy() for row in state.grid]
@@ -200,9 +220,13 @@ def pc_mode(algorithm, heuristic=None, level=None):
             pygame.display.flip()
             pygame.time.delay(500)  # Pause for 500ms between states
 
-        print(f"Puzzle solved in {solution_state.moves} moves!")
+        print(f"Puzzle solved in {solution_state.moves} moves! Time: {elapsed_time:.2f}s")
     else:
-        print("No solution found!")
+        # Check if the time limit was exceeded
+        if elapsed_time >= 15:
+            print(f"Time limit of 15 seconds exceeded. No solution found.")
+        else:
+            print(f"No solution found. Time taken: {elapsed_time:.2f}s")
 
 
 #TODO IMPLEMENT - ONLY CALLED IF PLAYER WANTS AT ANY POITN IN GAME
@@ -216,8 +240,8 @@ def computer_assisted_human_mode(level=None):
     global grid, blocks
     state = State(grid, blocks)  # Create the initial state
     while not state.is_goal():  # Continue until the goal is reached
-        # Use A* to find the next best move
-        new_state = a_star(state, combined_heuristic, level)
+        # Use greedy to find the next best move
+        new_state = greedy(state, heuristic_filled_cells, level)
         if new_state is None:
             print("No more hints available!")
             return
@@ -244,11 +268,12 @@ def main():
     print("1. Human Mode")
     print("2. PC Mode")
     print("3. Computer-Assisted Human Mode")
-    mode = input("Select mode (1/2/3): ")
+    mode = input("Select mode (1/2/3/4): ")
     print("1. Level 1 (4x4 grid)")
     print("2. Level 2 (5x5 grid)")
     print("3. Level 3 (6x6 grid)")
-    level = int(input("Select level (1/2/3): "))
+    print("4. Level 4 (2x2 grid)")
+    level = int(input("Select level (1/2/3/4): "))
 
     if level not in LEVEL_BLOCKS:
         print("Invalid level selected.")

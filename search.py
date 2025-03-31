@@ -1,6 +1,7 @@
 from collections import deque 
 import heapq  
 from cst import * 
+import time 
 
 """
     Performs Breadth-First Search to find a solution to the puzzle.
@@ -13,11 +14,16 @@ from cst import *
         State: The goal state if found, otherwise None.
     """
 def bfs(initial_state, level):
+    start_time = time.time()  # Track start time
     queue = deque([initial_state])  # Initialize a queue with the initial state
     visited = set()  # Track visited states to avoid revisiting
     visited.add(hash(initial_state))  # Add the initial state to the visited set
 
     while queue:  # Continue until the queue is empty
+        # Check if 15 seconds have passed
+        if time.time() - start_time > 15:
+            print("BFS: Time limit exceeded (15 seconds)")
+            return None
         state = queue.popleft()  # Get the next state from the queue
         if state.is_goal():  # Check if the current state is the goal
             print("Goal state found!")
@@ -46,10 +52,15 @@ def bfs(initial_state, level):
         State: The goal state if found, otherwise None.
     """
 def dfs(initial_state, level):
+    start_time = time.time()  # Track start time
     stack = [initial_state]  # Initialize a stack with the initial state
     visited = set()  # Track visited states to avoid revisiting
 
     while stack:  # Continue until the stack is empty
+        # Check if 15 seconds have passed
+        if time.time() - start_time > 15:
+            print("DFS: Time limit exceeded (15 seconds)")
+            return None
         state = stack.pop()  # Get the next state from the stack
         if state.is_goal():  # Check if the current state is the goal
             return state  # Return the goal state
@@ -77,10 +88,15 @@ def dfs(initial_state, level):
         State: The goal state if found, otherwise None.
     """
 def greedy(initial_state, heuristic, level):
-    heap = [(heuristic(initial_state.grid), initial_state)]  # Initialize a priority queue with the initial state
+    start_time = time.time()  # Track start time
+    heap = [(heuristic(initial_state.grid, initial_state.blocks), initial_state)]  # Initialize a priority queue with the initial state
     visited = set()  # Track visited states to avoid revisiting
 
     while heap:  # Continue until the priority queue is empty
+         # Check if 15 seconds have passed
+        if time.time() - start_time > 15:
+            print("Greedy: Time limit exceeded (15 seconds)")
+            return None
         _, state = heapq.heappop(heap)  # Get the state with the lowest heuristic value
         if state.is_goal():  # Check if the current state is the goal
             return state  # Return the goal state
@@ -91,7 +107,7 @@ def greedy(initial_state, heuristic, level):
         visited.add(hash(state))  # Mark the state as visited
         # Generate all possible successor states and add them to the priority queue
         for successor in state.get_successors(level):
-            heapq.heappush(heap, (heuristic(successor.grid), successor))
+            heapq.heappush(heap, (heuristic(successor.grid, successor.blocks), successor))
 
     return None  # If no solution is found, return None
 
@@ -108,10 +124,15 @@ def greedy(initial_state, heuristic, level):
         State: The goal state if found, otherwise None.
     """
 def a_star(initial_state, heuristic, level):
-    heap = [(heuristic(initial_state.grid) + initial_state.moves, initial_state)]  # Initialize a priority queue with the initial state
+    start_time = time.time()  # Track start time
+    heap = [(heuristic(initial_state.grid, initial_state.blocks) + initial_state.moves, initial_state)]  # Initialize a priority queue with the initial state
     visited = set()  # Track visited states to avoid revisiting
 
     while heap:  # Continue until the priority queue is empty
+        # Check if 15 seconds have passed
+        if time.time() - start_time > 15:
+            print("A*: Time limit exceeded (15 seconds)")
+            return None
         _, state = heapq.heappop(heap)  # Get the state with the lowest combined heuristic + cost value
         if state.is_goal():  # Check if the current state is the goal
             return state  # Return the goal state
@@ -122,6 +143,6 @@ def a_star(initial_state, heuristic, level):
         visited.add(hash(state))  # Mark the state as visited
         # Generate all possible successor states and add them to the priority queue
         for successor in state.get_successors(level):
-            heapq.heappush(heap, (heuristic(successor.grid) + successor.moves, successor))
-
+            heapq.heappush(heap, (heuristic(successor.grid, successor.blocks) + successor.moves, successor))
+            
     return None  # If no solution is found, return None

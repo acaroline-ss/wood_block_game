@@ -10,7 +10,7 @@ from utils import *
     Returns:
         int: The number of cells that are not BLACK (i.e., filled cells).
     """
-def heuristic_filled_cells(grid):
+def heuristic_filled_cells(grid, blocks=None):
     return sum(cell != BLACK for row in grid for cell in row)
 
 """
@@ -22,7 +22,7 @@ def heuristic_filled_cells(grid):
     Returns:
         int: The number of remaining blocks.
     """
-def heuristic_remaining_blocks(blocks):
+def heuristic_remaining_blocks(grid, blocks):
     return len(blocks)
 
 """
@@ -36,6 +36,7 @@ def heuristic_remaining_blocks(blocks):
     Returns:
         int: A heuristic score for the current state.
     """
+
 def combined_heuristic(grid, blocks):
     filled = sum(cell != BLACK for row in grid for cell in row) # Count the number of filled cells (non-BLACK cells)
     

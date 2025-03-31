@@ -1,13 +1,7 @@
-#cst.py
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 COLORS = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255)]  # red, green, blue, yellow, purple
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-RED = (255, 50, 50)
-GREEN = (50, 255, 50)
-WOOD_BROWN = (139, 69, 19)
 
 # Sizes
 WIDTH = 800  #screen width
@@ -38,4 +32,5 @@ LEVEL_BLOCKS = {
         ([[1, 1], [1, 1], [1, 1]], (0, 0, 255)),  # (2,3) rectangle, blue
         ([[1, 1, 0], [0, 1, 1]], (255, 255, 0))  # (1,1,1,1) Z-shape, yellow
     ],
+    4: [([[1,1]], (0, 255, 0))], # small rectangle
 }
