@@ -1,7 +1,13 @@
+#cst.py
 # Colors
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 COLORS = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255)]  # red, green, blue, yellow, purple
+WHITE = (255, 255, 255)
+BLACK = (0, 0, 0)
+RED = (255, 50, 50)
+GREEN = (50, 255, 50)
+WOOD_BROWN = (139, 69, 19)
 
 # Sizes
 WIDTH = 800  #screen width
