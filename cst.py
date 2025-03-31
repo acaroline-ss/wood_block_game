@@ -3,6 +3,10 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 COLORS = [(255, 0, 0), (0, 255, 0), (0, 0, 255), (255, 255, 0), (255, 0, 255)]  # red, green, blue, yellow, purple
 
+BLOCK_PANEL_WIDTH = 150  # Width of the block selection panel
+BLOCK_START_Y = 50      # Y-position where blocks start appearing
+BLOCK_SPACING = 100     # Vertical space between blocks
+
 # Sizes
 WIDTH = 800  #screen width
 HEIGHT = 600  #screen height

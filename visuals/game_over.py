@@ -2,7 +2,7 @@
 #game_over.py
 import pygame
 from cst import *
-from ui.buttons import Button
+from visuals.buttons import Button
 
 class GameOver:
     def __init__(self, screen, score):
