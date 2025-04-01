@@ -95,3 +95,25 @@ def render(screen, grid, blocks, score, GRID_SIZE, dragging_block=None, mouse_po
 
     main_text = font_score.render(f"Score: {score}", True, TEXT_COLOR)
     screen.blit(main_text, (score_x, score_y))  # Texto principal
+
+def render_game_only(screen, grid, blocks, GRID_SIZE, dragging_block=None, mouse_pos=None):
+    # 1. Limpe a tela UMA vez
+    screen.fill(WHITE)
+    
+    # 2. Desenhe elementos estáticos
+    draw_grid(screen, grid, GRID_SIZE)
+    
+    # 3. Desenhe blocos laterais (exceto o arrastado)
+    selected_idx = dragging_block[0] if dragging_block else None
+    draw_blocks(screen, blocks, selected_idx)
+    
+    # 4. Desenhe o bloco arrastado (COM TRANSPARÊNCIA)
+    if dragging_block and mouse_pos:
+        block, color, _ = dragging_block
+        for row in range(len(block)):
+            for col in range(len(block[row])):
+                if block[row][col]:
+                    # Crie superfície transparente
+                    s = pygame.Surface((BLOCK_SIZE, BLOCK_SIZE), pygame.SRCALPHA)
+                    s.fill((color[0], color[1], color[2], 180))  # Alpha=180 (semi-transparente)
+                    screen.blit(s, (mouse_pos[0] + col * BLOCK_SIZE, mouse_pos[1] + row * BLOCK_SIZE))

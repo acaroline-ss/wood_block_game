@@ -98,24 +98,27 @@ def no_valid_moves_left(grid, blocks, GRID_SIZE):
         int: The number of lines cleared.
     """
 def clear_completed_lines(grid, GRID_SIZE):
+    print(f"Debug: GRID_SIZE = {GRID_SIZE}")  # Debug print
+    print(f"Debug: Actual grid dimensions = {len(grid)}x{len(grid[0]) if grid else 0}")  # Debug print
+
     lines_cleared = 0  # Counter for cleared lines
 
     # Check for completed rows
     rows_to_clear = []  # List to store indices of completed rows
     for y in range(GRID_SIZE):  # Iterate over each row
-        if all(cell != BLACK for cell in grid[y]):  # Check if all cells in the row are filled
+        if all(cell != BLACK for cell in grid[y]):   # Check if all cells in the row are filled
             rows_to_clear.append(y)  # Add the row index to the list
 
     # Check for completed columns
     cols_to_clear = []  # List to store indices of completed columns
     for x in range(GRID_SIZE):  # Iterate over each column
-        if all(grid[y][x] != BLACK for y in range(GRID_SIZE)):  # Check if all cells in the column are filled
+        if all(grid[y][x] != BLACK for y in range(GRID_SIZE)): # Check if all cells in the column are filled
             cols_to_clear.append(x)  # Add the column index to the list
 
     # Clear completed rows
     for y in rows_to_clear:  # Iterate over each completed row
         for x in range(GRID_SIZE):  # Iterate over each cell in the row
-            grid[y][x] = BLACK  # Clear the cell
+            grid[y] = [BLACK for _ in range(GRID_SIZE)]  # Clear the cell
         lines_cleared += 1  # Increment the counter
 
     # Clear completed columns
