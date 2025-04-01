@@ -454,12 +454,13 @@ def pc_mode(algorithm, level, screen, heuristic=None):
         screen.fill((139, 69, 19))  # Wood background
         render(screen, grid, blocks, score, GRID_SIZE)
         
-        # Draw info panel with better spacing
+        # Draw info panel on the right side
         panel_width = 250
         panel_margin = 10
         panel_height = HEIGHT - 20
         panel_x = WIDTH - panel_width - panel_margin
         
+        # Create rounded rectangle panel
         info_panel = pygame.Rect(panel_x, 10, panel_width, panel_height)
         pygame.draw.rect(screen, (100, 70, 30), info_panel, border_radius=8)
         pygame.draw.rect(screen, (50, 30, 10), info_panel, 2, border_radius=8)
@@ -483,27 +484,29 @@ def pc_mode(algorithm, level, screen, heuristic=None):
             screen.blit(text_surface, (panel_x + 15, y_offset))
             y_offset += 30
         
-        # Move history with block previews
+        # Move history with block previews - sliding window of 4 most recent moves
         y_offset += 10  # Extra space before moves
         move_title = info_font.render("Move History:", True, (240, 220, 180))
         screen.blit(move_title, (panel_x + 15, y_offset))
         y_offset += 30
         
-        # Show last 4 moves (with limited space)
-        start_idx = max(0, len(move_info) - 4)
-        for move in move_info[start_idx:]:
-            # Draw move text
-            text_surface = move_font.render(move["text"], True, (240, 220, 180))
-            screen.blit(text_surface, (panel_x + 15, y_offset))
-            
-            # Draw block preview to the right of text
-            block_x = panel_x + panel_width - 60
-            screen.blit(move["block"], (block_x, y_offset))
-            
-            y_offset += 40  # More space for block previews
+        # Show sliding window of 4 most recent moves
+        if current_move > 0:
+            start_idx = max(0, current_move - 4)  # Show up to 4 most recent moves
+            for i in range(start_idx, current_move):
+                move = move_info[i]
+                # Draw move text
+                text_surface = move_font.render(move["text"], True, (240, 220, 180))
+                screen.blit(text_surface, (panel_x + 15, y_offset))
+                
+                # Draw block preview to the right of text
+                block_x = panel_x + panel_width - 60
+                screen.blit(move["block"], (block_x, y_offset))
+                
+                y_offset += 40  # More space for block previews
         
-        # Controls at bottom with proper spacing
-        y_offset = HEIGHT - 90
+        # Controls moved higher up
+        y_offset = y_offset + 20  # Position controls right after last move
         controls_title = info_font.render("Controls:", True, (240, 220, 180))
         screen.blit(controls_title, (panel_x + 15, y_offset))
         y_offset += 30

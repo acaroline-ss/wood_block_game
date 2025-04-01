@@ -7,6 +7,11 @@ BLOCK_PANEL_WIDTH = 150  # Width of the block selection panel
 BLOCK_START_Y = 50      # Y-position where blocks start appearing
 BLOCK_SPACING = 100     # Vertical space between blocks
 
+BOARD_X = 50  # Example value - your actual board position
+BOARD_Y = 50
+BOARD_WIDTH = 600
+BOARD_HEIGHT = 600
+
 # Sizes
 WIDTH = 800  #screen width
 HEIGHT = 600  #screen height
