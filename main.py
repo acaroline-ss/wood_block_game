@@ -373,27 +373,22 @@ def human_mode(level, screen):
 def pc_mode(algorithm, level, screen, heuristic=None):
     global grid, blocks, score, GRID_SIZE
     
-    # Initialize level and state
+    # Initialize level and state (same as second code)
     initialize_level(level)
     initial_state = State([row.copy() for row in grid], blocks.copy(), GRID_SIZE)
-    
-    # Create fonts matching your style
-    title_font = pygame.font.SysFont("Luckiest Guy", 32)
-    info_font = pygame.font.SysFont("Arial", 22)
-    move_font = pygame.font.SysFont("Arial", 18)
     
     # Start timing
     start_time = time.time()
     
-    # Run algorithm
+    # Run algorithm (same as second code)
     if algorithm == "bfs":
         solution_state = bfs(initial_state, level)
     elif algorithm == "dfs":
         solution_state = dfs(initial_state, level)
     elif algorithm == "greedy":
-        solution_state = greedy(initial_state, heuristic or heuristic_filled_cells, level)
+        solution_state = greedy(initial_state, heuristic_filled_cells, level)  # Use heuristic_filled_cells
     elif algorithm == "a_star":
-        solution_state = a_star(initial_state, heuristic or combined_heuristic, level)
+        solution_state = a_star(initial_state, combined_heuristic, level)  # Or heuristic_filled_cells
     else:
         return "game_over"
     
@@ -402,29 +397,25 @@ def pc_mode(algorithm, level, screen, heuristic=None):
     if not solution_state:
         return "game_over"
     
-    # Prepare solution path with block previews
+    # Reconstruct path (same as second code)
     path = []
     current_state = solution_state
     while current_state:
         path.append(current_state)
         current_state = current_state.parent
-    path = path[::-1]
+    path = path[::-1]  # Reverse to start from initial state
 
-    # Create move information with block previews
+    # Prepare move information (for the right panel)
     move_info = []
-    for idx, state in enumerate(path[1:], 1):
+    for idx, state in enumerate(path[1:], 1):  # Skip initial state
         if state.action:
             block, color, x, y = state.action
-            # Create small surface for block preview
+            # Create a small preview of the block (for the move history panel)
             block_surface = pygame.Surface((50, 50), pygame.SRCALPHA)
             for row in range(len(block)):
                 for col in range(len(block[row])):
                     if block[row][col]:
-                        pygame.draw.rect(
-                            block_surface, 
-                            color,
-                            (col*10, row*10, 10, 10)
-                        )
+                        pygame.draw.rect(block_surface, color, (col*10, row*10, 10, 10))
             move_info.append({
                 "text": f"Move {idx}: ({x},{y})",
                 "block": block_surface
@@ -433,40 +424,44 @@ def pc_mode(algorithm, level, screen, heuristic=None):
     current_move = 0
     clock = pygame.time.Clock()
     
+    # Visualization loop (keeps the first code's UI but follows second code's logic)
     while current_move < len(path):
-        # Event handling
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "quit"
             elif event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_SPACE and current_move < len(path) - 1:
-                    current_move += 1
+                    current_move += 1  # Next move
                 elif event.key == pygame.K_ESCAPE:
-                    current_move = len(path) - 1
+                    current_move = len(path) - 1  # Skip to end
         
-        # Update game state
+        # Update game state from path
         state = path[current_move]
         grid = [row.copy() for row in state.grid]
         blocks = state.blocks.copy()
-        score = state.moves * 10
+        score = state.moves * 10  # Score based on moves (same as second code)
         
-        # Render game
+        # Render game (same as first code)
         screen.fill((139, 69, 19))  # Wood background
         render(screen, grid, blocks, score, GRID_SIZE)
         
-        # Draw info panel on the right side
+        # Draw the right-side panel (algorithm info, move history)
         panel_width = 250
         panel_margin = 10
         panel_height = HEIGHT - 20
         panel_x = WIDTH - panel_width - panel_margin
         
-        # Create rounded rectangle panel
+        # Panel background
         info_panel = pygame.Rect(panel_x, 10, panel_width, panel_height)
         pygame.draw.rect(screen, (100, 70, 30), info_panel, border_radius=8)
         pygame.draw.rect(screen, (50, 30, 10), info_panel, 2, border_radius=8)
         
-        # Algorithm info
+        # Draw algorithm info
         y_offset = 20
+        title_font = pygame.font.SysFont("Luckiest Guy", 32)
+        info_font = pygame.font.SysFont("Arial", 22)
+        move_font = pygame.font.SysFont("Arial", 18)
+        
         title = title_font.render(f"{algorithm.upper()} Solution", True, (240, 220, 180))
         screen.blit(title, (panel_x + 10, y_offset))
         y_offset += 40
@@ -484,29 +479,23 @@ def pc_mode(algorithm, level, screen, heuristic=None):
             screen.blit(text_surface, (panel_x + 15, y_offset))
             y_offset += 30
         
-        # Move history with block previews - sliding window of 4 most recent moves
-        y_offset += 10  # Extra space before moves
+        # Move history (last 4 moves)
+        y_offset += 10
         move_title = info_font.render("Move History:", True, (240, 220, 180))
         screen.blit(move_title, (panel_x + 15, y_offset))
         y_offset += 30
         
-        # Show sliding window of 4 most recent moves
         if current_move > 0:
-            start_idx = max(0, current_move - 4)  # Show up to 4 most recent moves
+            start_idx = max(0, current_move - 4)  # Show last 4 moves
             for i in range(start_idx, current_move):
                 move = move_info[i]
-                # Draw move text
                 text_surface = move_font.render(move["text"], True, (240, 220, 180))
                 screen.blit(text_surface, (panel_x + 15, y_offset))
-                
-                # Draw block preview to the right of text
-                block_x = panel_x + panel_width - 60
-                screen.blit(move["block"], (block_x, y_offset))
-                
-                y_offset += 40  # More space for block previews
+                screen.blit(move["block"], (panel_x + panel_width - 60, y_offset))
+                y_offset += 40
         
-        # Controls moved higher up
-        y_offset = y_offset + 20  # Position controls right after last move
+        # Controls
+        y_offset += 20
         controls_title = info_font.render("Controls:", True, (240, 220, 180))
         screen.blit(controls_title, (panel_x + 15, y_offset))
         y_offset += 30

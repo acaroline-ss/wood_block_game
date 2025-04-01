@@ -24,6 +24,7 @@ def show_level_menu(screen):
                             return "back"  # Retorna como string
                         else:
                             return btn["level"]  # Retorna o número do nível diretamente
+                        
 def draw_button(screen, rect, text, font, hover=False):
     color = (100, 70, 30) if hover else (70, 40, 10)  # Marrom claro/escuro
     pygame.draw.rect(screen, color, rect, border_radius=8)
