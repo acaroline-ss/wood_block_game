@@ -31,7 +31,7 @@ clock = pygame.time.Clock()
 grid = None          # Current game grid (2D list of colors)
 blocks = []          # Available blocks to place
 selected_block = None  # Currently selected/dragged block
-score = 0            # Player's current score
+score = 100            # Player's current score
 current_level = 1    # Current level (1-3)
 game_mode = None     # Current game mode ('human', 'pc', 'assistant')
 
@@ -182,9 +182,9 @@ def initialize_level(level):
     Initialize game state for a specific level.
     
     Args:
-        level (int): The level number (1-4) to initialize.
+        level (int): The level number (1-3) to initialize.
     """
-    global GRID_SIZE, grid, blocks
+    global GRID_SIZE, grid, blocks, target_moves, moves_made
     
     config = LEVEL_CONFIG.get(level, LEVEL_CONFIG[1])  # Default to level 1 if invalid
     GRID_SIZE = config["size"]
@@ -195,6 +195,11 @@ def initialize_level(level):
              for row in config["grid"]]
     
     blocks = LEVEL_BLOCKS[level].copy()  # Create a fresh copy of blocks
+    
+    # Set target moves based on level
+    target_moves = {1: 5, 2: 12, 3: 44}.get(level, 5)
+    moves_made = 0
+    score = 100
 
 def human_mode(level, screen):
     """
@@ -207,7 +212,7 @@ def human_mode(level, screen):
     Returns:
         str: Next game state ("victory", "game_over", "quit", or "menu").
     """
-    global selected_block, grid, blocks, score, GRID_SIZE
+    global selected_block, grid, blocks, score, GRID_SIZE, moves_made, target_moves
     
     initialize_level(level)
     running = True
@@ -220,6 +225,8 @@ def human_mode(level, screen):
             return "game_over"
         if all(cell == BLACK for row in grid for cell in row):
             return "victory"
+        if score == 0:
+            return "game_over"
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -246,7 +253,16 @@ def human_mode(level, screen):
                         
                         if can_place_block(block, grid_x, grid_y, grid, GRID_SIZE, tolerance=2):
                             place_block(block, grid_x, grid_y, color, grid, GRID_SIZE)
-                            score += clear_completed_lines(grid, GRID_SIZE) * 10
+                            moves_made += 1
+                            
+                            # Calculate score based on target moves
+                            if moves_made > target_moves:
+                                score -= 20  # Deduct 10 points for each move beyond target
+                            
+                            # Add bonus for line/column clears
+                            lines_cleared = clear_completed_lines(grid, GRID_SIZE)
+                            if moves_made > target_moves and lines_cleared > 0:
+                                score += lines_cleared * 10
                             
                             # Remove used block and check if need to repopulate
                             if selected_index is not None and selected_index < len(blocks):
@@ -463,7 +479,7 @@ def computer_assisted_human_mode(level, screen):
     Returns:
         str: Next game state ("victory", "game_over", "quit", or "menu").
     """
-    global selected_block, grid, blocks, score, GRID_SIZE
+    global selected_block, grid, blocks, score, GRID_SIZE, moves_made, target_moves
     
     initialize_level(level)
     running = True
@@ -482,6 +498,8 @@ def computer_assisted_human_mode(level, screen):
             return "game_over"
         if all(cell == BLACK for row in grid for cell in row):
             return "victory"
+        if score <= 0:
+            return "game_over"
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -528,7 +546,16 @@ def computer_assisted_human_mode(level, screen):
                         
                         if can_place_block(block, grid_x, grid_y, grid, GRID_SIZE, tolerance=2):
                             place_block(block, grid_x, grid_y, color, grid, GRID_SIZE)
-                            score += clear_completed_lines(grid, GRID_SIZE) * 10
+                            moves_made += 1
+                            
+                            # Calculate score based on target moves
+                            if moves_made > target_moves:
+                                score -= 10  # Deduct 10 points for each move beyond target
+                            
+                            # Add bonus for line/column clears
+                            lines_cleared = clear_completed_lines(grid, GRID_SIZE)
+                            if lines_cleared > 0:
+                                score += lines_cleared * 20
                             
                             # Remove used block
                             if selected_index is not None and selected_index < len(blocks):
