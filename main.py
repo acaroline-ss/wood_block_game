@@ -304,7 +304,7 @@ def pc_mode(algorithm, level, screen, heuristic=None):
         heuristic (function, optional): Heuristic function for informed searches.
     
     Returns:
-        str: Next game state ("victory", "game_over", or "quit").
+        str: Next game state ("menu", "victory", "game_over", or "quit").
     """
     global grid, blocks, score, GRID_SIZE
     
@@ -316,10 +316,10 @@ def pc_mode(algorithm, level, screen, heuristic=None):
     
     # Run selected algorithm
     algorithm_map = {
-    "bfs": lambda s: bfs(s, level),
-    "dfs": lambda s: dfs(s, level),
-    "greedy": lambda s: greedy(s, heuristic_filled_cells, level),
-    "a_star": lambda s: a_star(s, combined_heuristic, level)
+        "bfs": lambda s: bfs(s, level),
+        "dfs": lambda s: dfs(s, level),
+        "greedy": lambda s: greedy(s, heuristic_filled_cells, level),
+        "a_star": lambda s: a_star(s, combined_heuristic, level)
     }
     
     solution_state = algorithm_map.get(algorithm, lambda s: None)(initial_state)
@@ -351,9 +351,14 @@ def pc_mode(algorithm, level, screen, heuristic=None):
                 "block": block_surface
             })
     
+    # Create menu button using the same Button class as VictoryScreen
+    menu_button = Button("MENU", (20, HEIGHT - 70), "main_menu")
+    
     # Visualization loop
     current_move = 0
     while current_move < len(path):
+        mouse_pos = pygame.mouse.get_pos()
+        
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "quit"
@@ -362,6 +367,10 @@ def pc_mode(algorithm, level, screen, heuristic=None):
                     current_move += 1
                 elif event.key == pygame.K_ESCAPE:
                     current_move = len(path) - 1
+            
+            # Handle button click - returns immediately if clicked
+            if menu_button.handle_event(event):
+                return menu_button.action  # Returns "main_menu"
         
         # Update game state from current move
         state = path[current_move]
@@ -373,7 +382,10 @@ def pc_mode(algorithm, level, screen, heuristic=None):
         screen.fill((139, 69, 19))
         render(screen, grid, blocks, score, GRID_SIZE)
         
-        # Draw info panel
+        # Draw menu button
+        menu_button.draw(screen)
+        
+        # Draw info panel on right
         panel_width = 250
         panel_x = WIDTH - panel_width - 10
         info_panel = pygame.Rect(panel_x, 10, panel_width, HEIGHT - 20)
@@ -385,14 +397,14 @@ def pc_mode(algorithm, level, screen, heuristic=None):
         # Draw algorithm info
         y_offset = 20
         fonts = {
-            "title": pygame.font.SysFont("Luckiest Guy", 32),
-            "info": pygame.font.SysFont("Arial", 22),
-            "move": pygame.font.SysFont("Arial", 18)
+            "title": pygame.font.SysFont("Luckiest Guy", 28),
+            "info": pygame.font.SysFont("Arial", 20, bold=True),
+            "move": pygame.font.SysFont("Arial", 16, bold=True)
         }
         
         # Title and stats
         title = fonts["title"].render(f"{algorithm.upper()} Solution", True, (240, 220, 180))
-        screen.blit(title, (panel_x + 10, y_offset))
+        screen.blit(title, (panel_x + (panel_width - title.get_width())//2, y_offset))
         y_offset += 40
         
         stats = [
@@ -408,12 +420,12 @@ def pc_mode(algorithm, level, screen, heuristic=None):
             y_offset += 30
         
         # Move history (last 4 moves)
-        y_offset += 10
-        move_title = fonts["info"].render("Move History:", True, (240, 220, 180))
-        screen.blit(move_title, (panel_x + 15, y_offset))
-        y_offset += 30
-        
         if current_move > 0:
+            y_offset += 10
+            move_title = fonts["info"].render("Move History:", True, (240, 220, 180))
+            screen.blit(move_title, (panel_x + 15, y_offset))
+            y_offset += 30
+            
             start_idx = max(0, current_move - 4)
             for i in range(start_idx, current_move):
                 move = move_info[i]
@@ -429,8 +441,8 @@ def pc_mode(algorithm, level, screen, heuristic=None):
         y_offset += 30
         
         for key, desc in [("SPACE", "Next move"), ("ESC", "Skip to end")]:
-            key_text = fonts["info"].render(key, True, (240, 220, 180))
-            desc_text = fonts["info"].render(desc, True, (240, 220, 180))
+            key_text = fonts["move"].render(key, True, (240, 220, 180))
+            desc_text = fonts["move"].render(desc, True, (240, 220, 180))
             screen.blit(key_text, (panel_x + 30, y_offset))
             screen.blit(desc_text, (panel_x + 100, y_offset))
             y_offset += 30
@@ -642,6 +654,9 @@ def main():
                 running = False
         
         elif current_state == "game":
+            # Initialize result with a default value
+            result = None
+    
             if game_mode == "human":
                 result = human_mode(current_level, screen)
             elif game_mode == "pc":
@@ -653,14 +668,20 @@ def main():
                 )
             elif game_mode == "assistant":
                 result = computer_assisted_human_mode(current_level, screen)
-            
-            # Handle game result
-            if result == "victory":
-                current_state = "victory"
-            elif result == "game_over":
-                current_state = "game_over"
-            elif result == "quit":
-                running = False
+    
+            # Only check result if it was set by one of the game modes
+            if result is not None:
+                if result == "main_menu":
+                    current_state = "main_menu"
+                elif result == "victory":
+                    current_state = "victory"
+                elif result == "game_over":
+                    current_state = "game_over"
+                elif result == "quit":
+                    running = False
+            else:
+                # Handle unexpected case (shouldn't normally happen)
+                current_state = "main_menu"
         
         elif current_state == "victory":
             victory = VictoryScreen(screen, score)
