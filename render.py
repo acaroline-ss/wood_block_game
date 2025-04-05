@@ -1,119 +1,154 @@
-import pygame 
-from cst import *  
+import pygame
+from cst import *
 
-"""
-    Draws the game grid on the screen.
+# Board display constants
+BOARD_X = 50          # X position of board's top-left corner
+BOARD_Y = 50          # Y position of board's top-left corner
+BOARD_WIDTH = 100     # Total width of the game board
+BOARD_HEIGHT = 110    # Total height of the game board
+TEXT_COLOR = (50, 30, 10)    # Primary text color (wood brown)
+SHADOW_COLOR = (100, 70, 30)  # Text shadow color
+
+def draw_grid(screen, grid, grid_size):
+    """
+    Draws the game grid with cell borders.
     
     Args:
-        screen (pygame.Surface): The Pygame surface where the grid will be drawn.
-        grid (list): A 2D list representing the current state of the grid.
-        GRID_SIZE (int): The size of the grid (number of rows and columns).
+        screen (pygame.Surface): Surface to draw on
+        grid (list[list]): 2D array representing cell colors
+        grid_size (int): Number of rows/columns in the grid
     """
-# Configurações do tabuleiro
-BOARD_X = 50          # Posição X do canto superior esquerdo do tabuleiro
-BOARD_Y = 50          # Posição Y do canto superior esquerdo do tabuleiro
-BOARD_WIDTH = 100     # Largura do tabuleiro
-BOARD_HEIGHT = 110    # Altura do tabuleiro
+    for y in range(grid_size):
+        for x in range(grid_size):
+            # Draw cell fill
+            pygame.draw.rect(
+                screen, 
+                grid[y][x], 
+                (x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE)
+            )
+            # Draw cell border
+            pygame.draw.rect(
+                screen, 
+                (50, 50, 50), 
+                (x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE), 
+                1
+            )
 
-def draw_grid(screen, grid, GRID_SIZE):
-    for y in range(GRID_SIZE):  # Iterate over each row in the grid
-        for x in range(GRID_SIZE):  # Iterate over each column in the grid
-            # Draw a rectangle for each cell in the grid
-            pygame.draw.rect(screen, grid[y][x], (x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE))
-            pygame.draw.rect(screen, (50, 50, 50), (x * BLOCK_SIZE, y * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE), 1)
-
-"""
-    Draws the available blocks on the side of the screen.
-    
-    Args:
-        screen (pygame.Surface): The Pygame surface where the blocks will be drawn.
-        blocks (list): A list of tuples representing the blocks and their colors.
-    """
 def draw_blocks(screen, blocks, selected_index=None):
+    """
+    Draws available blocks in the sidebar, excluding the selected one.
+    
+    Args:
+        screen (pygame.Surface): Surface to draw on
+        blocks (list): List of (block_matrix, color) tuples
+        selected_index (int, optional): Index of block being dragged
+    """
     for i, (block, color) in enumerate(blocks):
-        if i != selected_index:  # Não renderiza o bloco selecionado (está sendo arrastado)
-            pygame.draw.rect(screen, (200, 200, 200), (WIDTH - 150, 50 + i * 100, 3 * BLOCK_SIZE, 3 * BLOCK_SIZE))
+        if i != selected_index:  # Skip the dragged block
+            # Draw block container background
+            pygame.draw.rect(
+                screen, 
+                (200, 200, 200), 
+                (WIDTH - 150, 50 + i * 100, 3 * BLOCK_SIZE, 3 * BLOCK_SIZE)
+            )
+            
+            # Draw each cell of the block
             for row in range(len(block)):
                 for col in range(len(block[row])):
                     if block[row][col]:
-                        pygame.draw.rect(screen, color, (WIDTH - 150 + col * BLOCK_SIZE, 50 + i * 100 + row * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE))
+                        pygame.draw.rect(
+                            screen,
+                            color,
+                            (WIDTH - 150 + col * BLOCK_SIZE, 
+                             50 + i * 100 + row * BLOCK_SIZE, 
+                             BLOCK_SIZE, BLOCK_SIZE)
+                        )
 
-"""
-    Renders the entire game screen, including the grid, blocks, and score.
+def draw_dragging_block(screen, dragging_block, mouse_pos):
+    """
+    Draws a semi-transparent version of the block being dragged.
     
     Args:
-        screen (pygame.Surface): The Pygame surface where everything will be drawn.
-        grid (list): A 2D list representing the current state of the grid.
-        blocks (list): A list of tuples representing the blocks and their colors.
-        score (int): The player's current score.
-        GRID_SIZE (int): The size of the grid (number of rows and columns).
+        screen (pygame.Surface): Surface to draw on
+        dragging_block (tuple): (block_matrix, color, original_index)
+        mouse_pos (tuple): Current (x,y) mouse position
     """
-def render(screen, grid, blocks, score, GRID_SIZE, dragging_block=None, mouse_pos=None):
-    # 1. Limpe a tela UMA vez
-    screen.fill(WHITE)
-    
-    # 2. Desenhe elementos estáticos
-    draw_grid(screen, grid, GRID_SIZE)
-    
-    # 3. Desenhe blocos laterais (exceto o arrastado)
-    selected_idx = dragging_block[0] if dragging_block else None
-    draw_blocks(screen, blocks, selected_idx)
-    
-    # 4. Desenhe o bloco arrastado (COM TRANSPARÊNCIA)
-    if dragging_block and mouse_pos:
-        block, color, _ = dragging_block
-        for row in range(len(block)):
-            for col in range(len(block[row])):
-                if block[row][col]:
-                    # Crie superfície transparente
-                    s = pygame.Surface((BLOCK_SIZE, BLOCK_SIZE), pygame.SRCALPHA)
-                    s.fill((color[0], color[1], color[2], 180))  # Alpha=180 (semi-transparente)
-                    screen.blit(s, (mouse_pos[0] + col * BLOCK_SIZE, mouse_pos[1] + row * BLOCK_SIZE))
-    
-    # 5. UI (score)
-    # Configurações do score
-    font_score = pygame.font.SysFont("Luckiest Guy", 35, bold=True)
+    block, color, _ = dragging_block
+    for row in range(len(block)):
+        for col in range(len(block[row])):
+            if block[row][col]:
+                # Create transparent surface
+                s = pygame.Surface((BLOCK_SIZE, BLOCK_SIZE), pygame.SRCALPHA)
+                s.fill((*color, 180))  # Semi-transparent
+                screen.blit(
+                    s, 
+                    (mouse_pos[0] + col * BLOCK_SIZE, 
+                     mouse_pos[1] + row * BLOCK_SIZE)
+                )
 
-    # Posição X: Alinhado à direita do tabuleiro (BOARD_X + BOARD_WIDTH - largura_do_texto)
-    # Posição Y: 5px abaixo do tabuleiro (como você já estava usando)
+def draw_score(screen, score):
+    """
+    Renders the score display with shadow effect.
+    
+    Args:
+        screen (pygame.Surface): Surface to draw on
+        score (int): Current player score
+    """
+    font = pygame.font.SysFont("Luckiest Guy", 35, bold=True)
+    score_text = f"Score: {score}"
+    
+    # Calculate position to right-align with board
+    text = font.render(score_text, True, (0, 0, 0))
+    score_x = BOARD_X + BOARD_WIDTH - text.get_width()
     score_y = BOARD_Y + BOARD_HEIGHT + 5
+    
+    # Draw shadow and main text
+    shadow = font.render(score_text, True, SHADOW_COLOR)
+    screen.blit(shadow, (score_x + 2, score_y + 2))
+    main_text = font.render(score_text, True, TEXT_COLOR)
+    screen.blit(main_text, (score_x, score_y))
 
-    # Renderiza o texto uma vez para calcular sua largura
-    text = font_score.render(f"Score: {score}", True, (0, 0, 0))  # Cor temporária
-    text_width = text.get_width()
-
-    # Calcula a posição X para alinhar à direita do tabuleiro
-    score_x = BOARD_X + BOARD_WIDTH - text_width  # Alinhado à direita
-
-    # Cores (marrom escuro e sombra)
-    TEXT_COLOR = (50, 30, 10)    # Cor principal (marrom madeira)
-    SHADOW_COLOR = (100, 70, 30)  # Sombra sutil
-
-    # Renderiza o score
-    shadow_text = font_score.render(f"Score: {score}", True, SHADOW_COLOR)
-    screen.blit(shadow_text, (score_x + 2, score_y + 2))  # Sombra
-
-    main_text = font_score.render(f"Score: {score}", True, TEXT_COLOR)
-    screen.blit(main_text, (score_x, score_y))  # Texto principal
-
-def render_game_only(screen, grid, blocks, GRID_SIZE, dragging_block=None, mouse_pos=None):
-    # 1. Limpe a tela UMA vez
+def render(screen, grid, blocks, score, grid_size, dragging_block=None, mouse_pos=None):
+    """
+    Main rendering function that composes all game elements.
+    
+    Args:
+        screen (pygame.Surface): Surface to draw on
+        grid (list[list]): 2D array representing the game state
+        blocks (list): Available blocks (block_matrix, color)
+        score (int): Current player score
+        grid_size (int): Size of the game grid
+        dragging_block (tuple, optional): Block being dragged
+        mouse_pos (tuple, optional): Current mouse position
+    """
     screen.fill(WHITE)
+    draw_grid(screen, grid, grid_size)
     
-    # 2. Desenhe elementos estáticos
-    draw_grid(screen, grid, GRID_SIZE)
-    
-    # 3. Desenhe blocos laterais (exceto o arrastado)
-    selected_idx = dragging_block[0] if dragging_block else None
+    selected_idx = dragging_block[2] if dragging_block else None
     draw_blocks(screen, blocks, selected_idx)
     
-    # 4. Desenhe o bloco arrastado (COM TRANSPARÊNCIA)
     if dragging_block and mouse_pos:
-        block, color, _ = dragging_block
-        for row in range(len(block)):
-            for col in range(len(block[row])):
-                if block[row][col]:
-                    # Crie superfície transparente
-                    s = pygame.Surface((BLOCK_SIZE, BLOCK_SIZE), pygame.SRCALPHA)
-                    s.fill((color[0], color[1], color[2], 180))  # Alpha=180 (semi-transparente)
-                    screen.blit(s, (mouse_pos[0] + col * BLOCK_SIZE, mouse_pos[1] + row * BLOCK_SIZE))
+        draw_dragging_block(screen, dragging_block, mouse_pos)
+    
+    draw_score(screen, score)
+
+def render_game_only(screen, grid, blocks, grid_size, dragging_block=None, mouse_pos=None):
+    """
+    Lightweight renderer without score display (for AI/preview uses).
+    
+    Args:
+        screen (pygame.Surface): Surface to draw on
+        grid (list[list]): 2D array representing the game state
+        blocks (list): Available blocks (block_matrix, color)
+        grid_size (int): Size of the game grid
+        dragging_block (tuple, optional): Block being dragged
+        mouse_pos (tuple, optional): Current mouse position
+    """
+    screen.fill(WHITE)
+    draw_grid(screen, grid, grid_size)
+    
+    selected_idx = dragging_block[2] if dragging_block else None
+    draw_blocks(screen, blocks, selected_idx)
+    
+    if dragging_block and mouse_pos:
+        draw_dragging_block(screen, dragging_block, mouse_pos)

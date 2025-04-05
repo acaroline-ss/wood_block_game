@@ -1,148 +1,169 @@
-from collections import deque 
-import heapq  
-from cst import * 
-import time 
+from collections import deque
+import heapq
+from cst import *
+import time
 
-"""
-    Performs Breadth-First Search to find a solution to the puzzle.
+def bfs(initial_state, level):
+    """
+    Performs Breadth-First Search to find a solution to the wood block puzzle.
+    
+    BFS explores all possible states level by level, guaranteeing the shortest path solution
+    if one exists. This is suitable for smaller puzzles or when optimal moves are critical.
     
     Args:
-        initial_state (State): The starting state of the puzzle.
-        level (int): The current level of the game.
-    
+        initial_state (State): The starting configuration of the puzzle
+        level (int): Current game level, used to determine valid moves
+        
     Returns:
-        State: The goal state if found, otherwise None.
+        State: The solved state if found, None otherwise
     """
-def bfs(initial_state, level):
-    start_time = time.time()  # Track start time
-    queue = deque([initial_state])  # Initialize a queue with the initial state
-    visited = set()  # Track visited states to avoid revisiting
-    visited.add(hash(initial_state))  # Add the initial state to the visited set
+    start_time = time.time()
+    queue = deque([initial_state])  # Using deque for O(1) popleft operation
+    visited = set()  # Track visited states using hash to prevent cycles
+    
+    # Using hash of state instead of full state for memory efficiency
+    visited.add(hash(initial_state))
 
-    while queue:  # Continue until the queue is empty
-        # Check if 15 seconds have passed
+    while queue:
+        # Timeout check to prevent infinite search on large puzzles
         if time.time() - start_time > 15:
             print("BFS: Time limit exceeded (15 seconds)")
             return None
-        state = queue.popleft()  # Get the next state from the queue
-        if state.is_goal():  # Check if the current state is the goal
-            print("Goal state found!")
-            return state  # Return the goal state
+            
+        state = queue.popleft()
+        
+        # Early exit if goal is found
+        if state.is_goal():
+            return state
 
-        # Generate all possible successor states
-        successors = state.get_successors(level)
-        for successor in successors:
-            state_hash = hash(successor)  # Compute the hash of the successor state
-            if state_hash not in visited:  # If the state hasn't been visited
-                visited.add(state_hash)  # Mark it as visited
-                queue.append(successor)  # Add it to the queue
-                print(f"Generated successor: {successor.grid}")  # Print the successor grid
+        # Generate and process successors
+        for successor in state.get_successors(level):
+            state_hash = hash(successor)
+            if state_hash not in visited:
+                visited.add(state_hash)
+                queue.append(successor)
 
-    print("No solution found!")  # If no solution is found
-    return None  # Return None
+    return None
 
-"""
-    Performs Depth-First Search to find a solution to the puzzle.
+def dfs(initial_state, level):
+    """
+    Performs Depth-First Search to solve the puzzle.
+    
+    DFS explores states by going deep first, which can be memory efficient but doesn't
+    guarantee optimal solutions. Useful when solution depth is unknown but may be deep.
     
     Args:
-        initial_state (State): The starting state of the puzzle.
-        level (int): The current level of the game.
-    
+        initial_state (State): Starting puzzle configuration
+        level (int): Current game level for move validation
+        
     Returns:
-        State: The goal state if found, otherwise None.
+        State: Solved state if found, None otherwise
     """
-def dfs(initial_state, level):
-    start_time = time.time()  # Track start time
-    stack = [initial_state]  # Initialize a stack with the initial state
-    visited = set()  # Track visited states to avoid revisiting
+    start_time = time.time()
+    stack = [initial_state]  # Using list as stack (LIFO)
+    visited = set()
 
-    while stack:  # Continue until the stack is empty
-        # Check if 15 seconds have passed
+    while stack:
         if time.time() - start_time > 15:
             print("DFS: Time limit exceeded (15 seconds)")
             return None
-        state = stack.pop()  # Get the next state from the stack
-        if state.is_goal():  # Check if the current state is the goal
-            return state  # Return the goal state
+            
+        state = stack.pop()
+        
+        if state.is_goal():
+            return state
+            
+        # Skip already visited states to prevent cycles
+        if hash(state) in visited:
+            continue
+            
+        visited.add(hash(state))
+        
+        # Add successors in reverse order to maintain left-to-right exploration
+        stack.extend(reversed(state.get_successors(level)))
 
-        if hash(state) in visited:  # If the state has already been visited
-            continue  # Skip it
+    return None
 
-        visited.add(hash(state))  # Mark the state as visited
-        # Generate all possible successor states and add them to the stack
-        for successor in state.get_successors(level):
-            stack.append(successor)
-
-    return None  # If no solution is found, return None
-
-"""
-    Performs Greedy Search to find a solution to the puzzle.
-    Uses a heuristic function to prioritize states.
+def greedy(initial_state, heuristic, level):
+    """
+    Performs Greedy Best-First Search using the given heuristic.
+    
+    Prioritizes states that appear better according to the heuristic function,
+    without considering path cost. Fast but may not find optimal solutions.
     
     Args:
-        initial_state (State): The starting state of the puzzle.
-        heuristic (function): A heuristic function to evaluate states.
-        level (int): The current level of the game.
-    
+        initial_state (State): Starting puzzle configuration
+        heuristic (function): Function that evaluates state quality
+        level (int): Current game level
+        
     Returns:
-        State: The goal state if found, otherwise None.
+        State: Solved state if found, None otherwise
     """
-def greedy(initial_state, heuristic, level):
-    start_time = time.time()  # Track start time
-    heap = [(heuristic(initial_state.grid, initial_state.blocks), initial_state)]  # Initialize a priority queue with the initial state
-    visited = set()  # Track visited states to avoid revisiting
+    start_time = time.time()
+    # Priority queue using only heuristic value for ordering
+    heap = [(heuristic(initial_state.grid, initial_state.blocks), initial_state)]
+    visited = set()
 
-    while heap:  # Continue until the priority queue is empty
-         # Check if 15 seconds have passed
+    while heap:
         if time.time() - start_time > 15:
             print("Greedy: Time limit exceeded (15 seconds)")
             return None
-        _, state = heapq.heappop(heap)  # Get the state with the lowest heuristic value
-        if state.is_goal():  # Check if the current state is the goal
-            return state  # Return the goal state
-
-        if hash(state) in visited:  # If the state has already been visited
-            continue  # Skip it
-
-        visited.add(hash(state))  # Mark the state as visited
-        # Generate all possible successor states and add them to the priority queue
+            
+        _, state = heapq.heappop(heap)
+        
+        if state.is_goal():
+            return state
+            
+        if hash(state) in visited:
+            continue
+            
+        visited.add(hash(state))
+        
+        # Push successors with their heuristic evaluation
         for successor in state.get_successors(level):
             heapq.heappush(heap, (heuristic(successor.grid, successor.blocks), successor))
 
-    return None  # If no solution is found, return None
+    return None
 
-"""
-    Performs A* Search to find a solution to the puzzle.
-    Uses a heuristic function combined with the cost to prioritize states.
+def a_star(initial_state, heuristic, level):
+    """
+    Performs A* Search combining heuristic and path cost.
+    
+    A* finds optimal solutions when the heuristic is admissible (never overestimates).
+    Balances between Dijkstra's algorithm and Greedy search.
     
     Args:
-        initial_state (State): The starting state of the puzzle.
-        heuristic (function): A heuristic function to evaluate states.
-        level (int): The current level of the game.
-    
+        initial_state (State): Starting puzzle configuration
+        heuristic (function): Admissible heuristic function
+        level (int): Current game level
+        
     Returns:
-        State: The goal state if found, otherwise None.
+        State: Solved state if found, None otherwise
     """
-def a_star(initial_state, heuristic, level):
-    start_time = time.time()  # Track start time
-    heap = [(heuristic(initial_state.grid, initial_state.blocks) + initial_state.moves, initial_state)]  # Initialize a priority queue with the initial state
-    visited = set()  # Track visited states to avoid revisiting
+    start_time = time.time()
+    # Priority queue using f(n) = g(n) + h(n) where:
+    # g(n) = path cost (state.moves), h(n) = heuristic value
+    heap = [(heuristic(initial_state.grid, initial_state.blocks) + initial_state.moves, initial_state)]
+    visited = set()
 
-    while heap:  # Continue until the priority queue is empty
-        # Check if 15 seconds have passed
+    while heap:
         if time.time() - start_time > 15:
             print("A*: Time limit exceeded (15 seconds)")
             return None
-        _, state = heapq.heappop(heap)  # Get the state with the lowest combined heuristic + cost value
-        if state.is_goal():  # Check if the current state is the goal
-            return state  # Return the goal state
-
-        if hash(state) in visited:  # If the state has already been visited
-            continue  # Skip it
-
-        visited.add(hash(state))  # Mark the state as visited
-        # Generate all possible successor states and add them to the priority queue
-        for successor in state.get_successors(level):
-            heapq.heappush(heap, (heuristic(successor.grid, successor.blocks) + successor.moves, successor))
             
-    return None  # If no solution is found, return None
+        _, state = heapq.heappop(heap)
+        
+        if state.is_goal():
+            return state
+            
+        if hash(state) in visited:
+            continue
+            
+        visited.add(hash(state))
+        
+        for successor in state.get_successors(level):
+            # f(n) = actual cost so far + heuristic estimate
+            total_cost = heuristic(successor.grid, successor.blocks) + successor.moves
+            heapq.heappush(heap, (total_cost, successor))
+
+    return None
