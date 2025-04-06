@@ -1,50 +1,71 @@
-# wood_block_game
-Este projeto busca analisar o algoritmo do Wood Block, explorando sua lógica de movimentação e remoção de blocos. Além disso, investiga a implementação de IA para otimizar jogadas, prever posicionamentos e desenvolver estratégias eficientes dentro do jogo.
+# Wood_block_game
+* Este projeto foi desenvolvido no âmbito da unidade curricular de EIACD (Elementos de Inteligência Artificial e Ciência de Dados), sob orientação dos professores Luís Paulo Reis e Miriam Santos.
+* O jogo Wood Block é um puzzle de estratégia e raciocínio espacial, inspirado em clássicos como o Tetris e o Blokus.
+* O objetivo principal é posicionar peças de madeira num tabuleiro limitado, sem sobreposições, até preencher todo o espaço disponível.
+* Regras básicas:
+  * Cada jogador recebe peças com formatos geométricos diferentes.
+  * As peças devem ser colocadas de forma a maximizar o espaço ocupado e evitar bloqueios futuros.
+  * O jogo termina o tabuleiro é completamente preechido pelas peças disponíveis e forma uma matriz vazia.
+ <img width="692" alt="Captura de Tela 2025-04-06 às 12 32 06" src="https://github.com/user-attachments/assets/38851a86-5502-4b6f-b2e7-31f24cb7136f" />
 
+<img width="407" alt="Captura de Tela 2025-04-06 às 12 40 32" src="https://github.com/user-attachments/assets/04d09c48-f8f5-49e1-bb6b-876d62893f35" />
 
-Ideia geral do trabalho: ao entrar no jogo, o utilizador poderá escolher entre user mode (ele é que joga) e pc mode (a IA é que joga). Se escolher o user mode: código da Alice. Se escolher pc mode, poderá novamente escolher entre diversos métodos de pesquisa (como breadth first; depth first; A*; etc.). 
-Ideias adicionais: Caso o utilizador tente colocar uma peça de uma forma que ultrapassa os limites do tabuleiro, poderá aparecer uma mensagem como  ou "The piece doesn't fit within the limits of the board, duh"
-. Também podemos colocar outras mensagens insultuosas ao longo do jogo, como "Of all the options, THAT'S the search method you choose?". Além disso, poderíamos fazer com que para cada método de pesquisa sejam apresentados dados que reflitam a sua eficácia, como a rapidez com que chegou à solução, o custo associado, a memória ocupada, etc.
+# Descrição
+* Este projeto desenvolveu um algoritmo para o jogo Wood Block, implementando diferentes métodos de pesquisa de IA.
+* Funcionalidades:
+  * 👤 Modo Jogador: O jogador escolhe o movimento das peças manualmente
+  * 🤖 Modo IA: Escolha entre algoritmos:
+     * Breadth-First (BFS)
+     * Depth-First (DFS)
+     * A*
+     * Greedy Search
+  * Computer Assistent Mode: A IA fornece dicas ao jogador do posicionamento estrategico das peças
+* Objetivos:
+  * Simular o Wood Block com IA
+  * Comparar eficiência dos algoritmos
 
-Chekpoints:
+ # Dependências
+ * Este projeto requer as seguintes dependências:
+   * Python ou Anaconda
+   * Pygame
+* Biblotecas usadas
+  * import pygame: desenha os recursos gráficos.
+  * import random: Gera números aleatórios e seleções aleatórias.
+  * import time: Controlar tempo, velocidade e pausas no jogo.
+  * import os: Gerenciar arquivos/pastas.
+  * import sys: Acessa parâmetros e funções específicas do sistema
 
-- Trabalho até agora desenvolvido: parte da interface e jogo em user mode;
-- Bibliografia: https://www.youtube.com/watch?v=RxWS5h1UfI4; https://www.youtube.com/watch?v=TnpoBCFDo88; https://github.com/RedCuckoo/wood-block-puzzle; https://youtu.be/V9MbQ2Xl4CE?si=rbN3luVc5UlX8Vaz
-- Formulação do jogo como um problema de pesquisa:
-      (1) Representação dos estados: matriz + coordenadas?
-      (2) Estado inicial: matriz vazia
-      (3) Operadores: igualar a 1 ou igualar a 0? (definir peças)
-      (4) Custo de cada jogada: nº de coordenadas que se preenchem com 1s ou nº de coordenadas que passam a 0s (custo de 1 cada?)
-      (5) Objetivo: acabar com uma matriz (tabuleiro) completamente vazia
-      (6) Opções de Métodos de pesquisa: breathd first; depth first; cost; A*; etc.
-      (7)  
-
-
-Comentários da Alice do código já escrito :
-1) as diferentes imports para gerir as files no main não funcionam and I DON'T KNOW WHY. - enviar mail a miriam
-2) No human mode está quase tudo bom, só (EASY TO FIX, SÓ UM LEMBRETE) as pecas estão a blink weirdly e é muito sensível... - CAROL VER ISSO !!!!
-3) implementar os niveis !!! (initial state, have to be able to NOT be solvable, ...)
-4) PC mode não funciona por enquanto - so figure it out... + discutir com professora, do objetivo do jogo (muito complicado para os algoritmos de procura ? infinito ?).
-5) review if rotation or not ??
-6) the three blocks need to be used before other are porposed ???
-7) implement streaks (linha effacee de suite = multiplication des points
-8) supprime pas seulement les lignes mais aussi carrées 3*3 dans niveaux tableux tailles 6*6
-9) placer un bloc donnes des points ?
-10) points = seulement in human mode ???
-
-Organizacao (bia)
-* fazemos essa parte a mao (garantindo que tenhamos um nivel de solucao
-  * matriz preenchida
-  * retiramos as pecas (que serao as geradas)
-  * geramos algumas dessas pecas aleatoriamente em cada jogada
-
-* estado inicial: matriz atribuida da 1 fase
-* operadores: pecas disponibilizadas
-* estado final: matriz vazia
-
-* NIVEIS:
-  * nivel 1: 4X4 (MENOS PECAS RETIRADAS E MENOS PROXIMAS)
-  * nivel 2: 5x5 (mais pecas retiradas e mais proximas
-  * nivel 3: 6x6 (ainda mais pecas retiradas e ainda mais pecas proximas
-
-
+# Iniciando o jogo
+* **Passo 1 - Certifique-se de ter o VS code instalado**
+  
+* **Passo 2 - Para iniciar o jogo é necessário ter algum interpretador python em sua máquina. Ex: python ou anaconda**
+  * Acesse o site oficial: https://www.python.org/downloads/
+  * Clique em "Download Python 3.x.x" (versão mais recente, ex: 3.12). O Windows/macOS/Linux serão detectados automaticamente.
+  * Localize o arquivo baixado (ex: python-3.12.1-amd64.exe) e dê duplo clique.
+  * Na primeira tela:
+     * ✅ Marque a opção "Add python.exe to PATH" (CRUCIAL para rodar Python no CMD).
+     * ✅ Recomendado: Selecione "Install Now" (instalação padrão para usuários iniciantes).
+  * Clique em "Install" > Aguarde a conclusão (> barra de progresso azul).
+* **Passo 3 - Instalar o pygame**
+  * No Prompt de Comando , digite:
+    ```bash
+    pip install pygame
+    ```
+* **Passo 3 - Clonar o repósitório do projeto no seu VS Code**
+  * No terminal do seu VS code, digite:
+    ```bash
+    git clone https://github.com/acaroline-ss/wood_block_game.git
+    ```
+* **Passo 4 - Abrir o jogo**
+  * Para iniciar o jogo, navegue até o diretório que contém o arquivo **main.py** e execute o seguinte comando no terminal:
+    ```bash
+    python main.py
+    ```
+  * Obs: Este comando pode variar dependendo do interpretador ou versão que o utilizador estiver usando. Ex: Se estiver usando Python 3 e o comando acima não funcionar, tente:
+    ```bash
+    python3 main.py
+    ```
+  # Team T1B_G9
+  * Alice de Azevedo Silva
+  * Ana Caroline Soares Silva
+  * Beatriz Morais Vieira
