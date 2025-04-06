@@ -1,3 +1,10 @@
+"""
+Heuristic evaluation functions for Wood Block Puzzle solver.
+
+This module provides various heuristic functions to evaluate game states,
+used by search algorithms to estimate state quality without full exploration.
+"""
+
 from cst import *
 from utils import *
 
@@ -5,93 +12,112 @@ def heuristic_filled_cells(grid, blocks=None):
     """
     Counts the number of non-empty (filled) cells in the grid.
     
-    This simple heuristic evaluates the current state by counting how many cells
-    are occupied. Lower values indicate better states (less filled cells).
-    
+    This is the simplest possible heuristic - lower values indicate better states
+    (closer to solution). Works well for greedy search but lacks strategic insight.
+
     Args:
-        grid (list[list]): 2D array representing the game grid
-        blocks (list, optional): Unused parameter kept for interface consistency
-        
+        grid: 2D array of RGB tuples representing current board state
+        blocks: Ignored (present for interface consistency)
+
     Returns:
-        int: Count of non-BLACK cells in the grid
+        int: Number of non-BLACK cells (0 is perfect score)
+
+    Example:
+        >>> grid = [[BLACK, WHITE], [WHITE, BLACK]]
+        >>> heuristic_filled_cells(grid)
+        2
     """
     return sum(cell != BLACK for row in grid for cell in row)
 
 def heuristic_remaining_blocks(grid, blocks):
     """
-    Evaluates state based on number of remaining blocks.
+    Evaluates state based on number of unplaced blocks.
     
-    This heuristic prioritizes states with fewer remaining blocks to place.
-    The assumption is that fewer remaining blocks means we're closer to solving.
-    
+    Fewer remaining blocks generally indicates progress toward solution.
+    However, this alone doesn't account for board configuration.
+
     Args:
-        grid (list[list]): 2D array representing the game grid (unused)
-        blocks (list): List of remaining block objects to place
-        
+        grid: Ignored (present for interface consistency)
+        blocks: List of (block_matrix, color) tuples remaining
+
     Returns:
-        int: Count of remaining blocks
+        int: Count of remaining blocks (0 is perfect score)
+
+    Note:
+        Works best when combined with other heuristics
     """
     return len(blocks)
 
 def combined_heuristic(grid, blocks):
     """
-    Comprehensive heuristic combining multiple game state factors.
+    Comprehensive state evaluation combining multiple strategic factors.
     
-    Evaluates the state by considering:
-    1. Penalty for filled cells
-    2. Bonus for potential line clears
-    3. Bonus for remaining blocks (as having options is good)
+    Components:
+    1. Filled cells penalty (more = worse)
+    2. Potential line clear bonus (more = better)
+    3. Block options bonus (more = better)
     
+    Weights were determined empirically through testing.
+
     Args:
-        grid (list[list]): 2D array representing the game grid
-        blocks (list): List of remaining block objects
-        
+        grid: Current board state
+        blocks: Remaining blocks
+
     Returns:
-        int: Combined heuristic score (lower is better)
+        int: Weighted heuristic score (lower is better)
+
+    Note:
+        The weights (10 for lines, 5 for blocks) can be tuned for
+        different game levels or difficulty settings.
     """
-    # Count filled cells (non-BLACK cells)
-    filled = sum(cell != BLACK for row in grid for cell in row)
-    
-    # Count clearable lines (rows/columns with no empty cells)
-    lines = 0
     grid_size = len(grid)
     
-    # Check all rows and columns for potential clears
-    lines += sum(all(cell != BLACK for cell in row) for row in grid)
-    lines += sum(all(grid[i][j] != BLACK for i in range(grid_size)) 
-                for j in range(len(grid[0])))
+    # Filled cells (direct measure of progress)
+    filled = sum(cell != BLACK for row in grid for cell in row)
     
-    # Weighted components:
-    # - Filled cells are bad (positive weight)
-    # - Clearable lines are good (negative weight)
-    # - More remaining blocks is good (negative weight)
-    return filled - (lines * 10) + len(blocks) * 5
+    # Potential line clears (strategic bonus)
+    lines = 0
+    lines += sum(all(cell != BLACK for cell in row) for row in grid)
+    lines += sum(all(grid[i][j] != BLACK for i in range(grid_size))
+                for j in range(grid_size))
+    
+    return (
+        filled          # Base penalty
+        - lines * 10    # Strong bonus for clearable lines
+        + len(blocks) * 5  # Moderate bonus for having options
+    )
 
 def heuristic_block_removal(grid, blocks):
     """
-    Evaluates how many blocks could potentially be removed from the current state.
+    Estimates how many remaining blocks can potentially be placed.
     
-    This heuristic counts how many of the remaining blocks could be placed
-    in the current grid configuration. Returns a negative value because
-    fewer removable blocks is better (means we've placed more blocks).
-    
+    This evaluates flexibility - states where more blocks can be placed
+    are considered better, as they provide more solution paths.
+
     Args:
-        grid (list[list]): 2D array representing the game grid
-        blocks (list): List of remaining (block, color) tuples
-        
+        grid: Current board state
+        blocks: Remaining (block_matrix, color) tuples
+
     Returns:
-        int: Negative count of removable blocks (lower is better)
+        int: Negative count of placeable blocks (lower is better)
+
+    Complexity:
+        O(b*r*p) where:
+        b = number of blocks
+        r = rotations per block (max 4)
+        p = grid positions (N^2)
     """
     removable_blocks = 0
+    grid_size = len(grid)
     
-    for block, color in blocks:
-        # Check if any rotation of the block can be placed anywhere
+    for block, _ in blocks:  # Color not needed for placement check
+        # Check all rotations
         for rotation in get_rotations(block):
-            # Using generator expression for early termination
+            # Check all positions - using any() for early termination
             if any(can_place_block(rotation, x, y, grid)
-                  for x in range(GRID_SIZE)
-                  for y in range(GRID_SIZE)):
+                  for x in range(grid_size)
+                  for y in range(grid_size)):
                 removable_blocks += 1
-                break  # No need to check other positions if we found one
-    
-    return -removable_blocks
+                break  # Found at least one placement
+            
+    return -removable_blocks  # Negative because fewer is better

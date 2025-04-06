@@ -5,62 +5,62 @@ import time
 
 def bfs(initial_state, level):
     """
-    Performs Breadth-First Search to find a solution to the wood block puzzle.
-    
-    BFS explores all possible states level by level, guaranteeing the shortest path solution
-    if one exists. This is suitable for smaller puzzles or when optimal moves are critical.
+    Performs Breadth-First Search to find the optimal solution to the wood block puzzle.
     
     Args:
         initial_state (State): The starting configuration of the puzzle
         level (int): Current game level, used to determine valid moves
         
     Returns:
-        State: The solved state if found, None otherwise
+        State: The solved state if found within time limit, None otherwise
+        
+    Notes:
+        - Explores all possible states level by level
+        - Guarantees shortest path solution (optimal moves)
+        - Uses deque for O(1) popleft operations
+        - Tracks visited states using hash for memory efficiency
+        - Implements 15-second timeout for large puzzles
     """
     start_time = time.time()
-    queue = deque([initial_state])  # Using deque for O(1) popleft operation
-    visited = set()  # Track visited states using hash to prevent cycles
-    
-    # Using hash of state instead of full state for memory efficiency
-    visited.add(hash(initial_state))
+    queue = deque([initial_state])
+    visited = {hash(initial_state)}
 
     while queue:
-        # Timeout check to prevent infinite search on large puzzles
         if time.time() - start_time > 15:
             print("BFS: Time limit exceeded (15 seconds)")
             return None
             
         state = queue.popleft()
         
-        # Early exit if goal is found
         if state.is_goal():
             return state
 
-        # Generate and process successors
         for successor in state.get_successors(level):
-            state_hash = hash(successor)
-            if state_hash not in visited:
-                visited.add(state_hash)
+            if (h := hash(successor)) not in visited:
+                visited.add(h)
                 queue.append(successor)
 
     return None
 
 def dfs(initial_state, level):
     """
-    Performs Depth-First Search to solve the puzzle.
-    
-    DFS explores states by going deep first, which can be memory efficient but doesn't
-    guarantee optimal solutions. Useful when solution depth is unknown but may be deep.
+    Performs Depth-First Search to solve the puzzle (non-optimal solution).
     
     Args:
         initial_state (State): Starting puzzle configuration
         level (int): Current game level for move validation
         
     Returns:
-        State: Solved state if found, None otherwise
+        State: Solved state if found within time limit, None otherwise
+        
+    Notes:
+        - Explores by going deep first (memory efficient for deep solutions)
+        - Doesn't guarantee optimal solutions
+        - Processes successors in reverse order to maintain left-to-right exploration
+        - Implements cycle detection via visited set
     """
     start_time = time.time()
-    stack = [initial_state]  # Using list as stack (LIFO)
+    stack = [initial_state]
     visited = set()
 
     while stack:
@@ -73,34 +73,33 @@ def dfs(initial_state, level):
         if state.is_goal():
             return state
             
-        # Skip already visited states to prevent cycles
-        if hash(state) in visited:
+        if (h := hash(state)) in visited:
             continue
             
-        visited.add(hash(state))
-        
-        # Add successors in reverse order to maintain left-to-right exploration
+        visited.add(h)
         stack.extend(reversed(state.get_successors(level)))
 
     return None
 
 def greedy(initial_state, heuristic, level):
     """
-    Performs Greedy Best-First Search using the given heuristic.
-    
-    Prioritizes states that appear better according to the heuristic function,
-    without considering path cost. Fast but may not find optimal solutions.
+    Greedy Best-First Search using heuristic evaluation.
     
     Args:
         initial_state (State): Starting puzzle configuration
-        heuristic (function): Function that evaluates state quality
+        heuristic (function): Function that evaluates state quality (h(n))
         level (int): Current game level
         
     Returns:
-        State: Solved state if found, None otherwise
+        State: Solved state if found within time limit, None otherwise
+        
+    Notes:
+        - Prioritizes states with best heuristic value
+        - No consideration of path cost (g(n))
+        - May find solutions quickly but not necessarily optimal
+        - Uses priority queue (min-heap) for state selection
     """
     start_time = time.time()
-    # Priority queue using only heuristic value for ordering
     heap = [(heuristic(initial_state.grid, initial_state.blocks), initial_state)]
     visited = set()
 
@@ -114,12 +113,10 @@ def greedy(initial_state, heuristic, level):
         if state.is_goal():
             return state
             
-        if hash(state) in visited:
+        if (h := hash(state)) in visited:
             continue
             
-        visited.add(hash(state))
-        
-        # Push successors with their heuristic evaluation
+        visited.add(h)
         for successor in state.get_successors(level):
             heapq.heappush(heap, (heuristic(successor.grid, successor.blocks), successor))
 
@@ -127,22 +124,22 @@ def greedy(initial_state, heuristic, level):
 
 def a_star(initial_state, heuristic, level):
     """
-    Performs A* Search combining heuristic and path cost.
-    
-    A* finds optimal solutions when the heuristic is admissible (never overestimates).
-    Balances between Dijkstra's algorithm and Greedy search.
+    A* Search combining path cost and heuristic (f(n) = g(n) + h(n)).
     
     Args:
         initial_state (State): Starting puzzle configuration
-        heuristic (function): Admissible heuristic function
+        heuristic (function): Admissible heuristic function (never overestimates)
         level (int): Current game level
         
     Returns:
-        State: Solved state if found, None otherwise
+        State: Solved state if found within time limit, None otherwise
+        
+    Notes:
+        - Finds optimal solutions when heuristic is admissible
+        - Balances between path cost and heuristic estimate
+        - More efficient than BFS for large state spaces with good heuristic
     """
     start_time = time.time()
-    # Priority queue using f(n) = g(n) + h(n) where:
-    # g(n) = path cost (state.moves), h(n) = heuristic value
     heap = [(heuristic(initial_state.grid, initial_state.blocks) + initial_state.moves, initial_state)]
     visited = set()
 
@@ -156,14 +153,11 @@ def a_star(initial_state, heuristic, level):
         if state.is_goal():
             return state
             
-        if hash(state) in visited:
+        if (h := hash(state)) in visited:
             continue
             
-        visited.add(hash(state))
-        
+        visited.add(h)
         for successor in state.get_successors(level):
-            # f(n) = actual cost so far + heuristic estimate
-            total_cost = heuristic(successor.grid, successor.blocks) + successor.moves
-            heapq.heappush(heap, (total_cost, successor))
+            heapq.heappush(heap, (heuristic(successor.grid, successor.blocks) + successor.moves, successor))
 
     return None

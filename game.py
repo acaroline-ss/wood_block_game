@@ -1,3 +1,12 @@
+"""
+State representation and generation for Wood Block Puzzle solver.
+
+This module contains:
+- The State class representing game states
+- Block generation functionality
+- Successor state generation logic
+"""
+
 from cst import *
 from heuristics import *
 import random
@@ -8,146 +17,151 @@ def generate_block(level):
     """
     Randomly selects a block from the available blocks for the given level.
     
-    This function is used to provide new blocks when the player needs them, ensuring
-    they're appropriate for the current difficulty level.
-    
     Args:
-        level (int): The current game level, used to determine which blocks are available.
+        level (int): Current game level (determines block set)
         
     Returns:
-        tuple: A randomly selected (block_matrix, color) tuple from LEVEL_BLOCKS[level].
+        tuple: (block_matrix, color) tuple randomly selected from LEVEL_BLOCKS[level]
+        
+    Example:
+        >>> generate_block(1)
+        ([[1, 1, 1]], (255, 0, 0))  # Could return any level 1 block
     """
     return random.choice(LEVEL_BLOCKS[level])
 
 
 class State:
     """
-    Represents a game state in the wood block puzzle.
-    
-    A state consists of:
-    - The current grid configuration
+    Represents a complete game state including:
+    - Grid configuration
     - Available blocks
-    - Move count
-    - Parent state (for path tracking)
-    - Action that led to this state
-    - Tolerance for solution acceptance
+    - Move history
+    - Search metadata
     
-    The class provides methods for:
-    - Goal checking
-    - Successor state generation
-    - State comparison
-    - Hashing for efficient storage
+    Attributes:
+        grid (list[list[tuple]]): 2D array of RGB colors representing current board
+        blocks (list[tuple]): Available (block_matrix, color) tuples
+        grid_size (int): Dimensions of the game grid (N x N)
+        moves (int): Number of moves taken to reach this state
+        parent (State): Previous state in solution path
+        action (tuple): (block, color, x, y) of last placement
+        tolerance (int): Allowed remaining colored cells for relaxed solutions
     """
-    
+
     def __init__(self, grid, blocks, grid_size, moves=0, parent=None, action=None, tolerance=2):
         """
-        Initialize a new game state.
+        Initialize a new game state with deep copies of mutable data.
         
         Args:
-            grid (list[list[tuple]]): 2D array representing current grid colors
-            blocks (list[tuple]): Available blocks (block_matrix, color) tuples
-            grid_size (int): Size of the game grid (grid_size x grid_size)
-            moves (int): Number of moves taken to reach this state
-            parent (State): Previous state that led to this one
-            action (tuple): (block, color, x, y) of last placement
-            tolerance (int): Maximum allowed remaining colored cells to consider solution
+            grid: Current board state as 2D color array
+            blocks: Available blocks for placement
+            grid_size: Dimension of square grid
+            moves: Move count (default 0)
+            parent: Previous state (default None)
+            action: Last move taken (default None)
+            tolerance: Acceptable remaining cells (default 2)
         """
-        # Deep copies to prevent accidental state modification
-        self.grid = [row.copy() for row in grid]
-        self.blocks = blocks.copy()
+        self.grid = [row.copy() for row in grid]  # Deep copy
+        self.blocks = blocks.copy()  # Deep copy
         self.grid_size = grid_size
         self.moves = moves
-        self.parent = parent  # For reconstructing solution path
-        self.action = action  # Track how we got here (for solution display)
-        self.tolerance = tolerance  # Used for relaxed goal checking elsewhere
+        self.parent = parent
+        self.action = action
+        self.tolerance = tolerance
 
     def is_goal(self):
         """
-        Check if this state is a winning configuration.
-        
-        The strict goal is achieved when the entire grid is cleared (all cells are BLACK).
-        The tolerance parameter allows for relaxed checking elsewhere in the code.
+        Check if state represents a solved puzzle.
         
         Returns:
-            bool: True if grid is completely cleared, False otherwise
+            bool: True if all grid cells are BLACK (empty)
+            
+        Note:
+            Tolerance parameter isn't used here but may be used elsewhere
         """
         return all(cell == BLACK for row in self.grid for cell in row)
 
     def get_successors(self, level):
         """
-        Generate all possible next states from current state.
+        Generate all valid successor states by placing available blocks.
         
-        For each available block, in each possible rotation, at every valid position:
-        1. Checks if placement is valid
-        2. Creates new grid with block placed
-        3. Clears any completed lines
-        4. Creates new state with updated blocks
+        For each block, tries:
+        - All rotations
+        - All valid positions
+        - Handles line clearing
+        - Manages block replenishment
         
         Args:
-            level (int): Current game level (used for block replenishment)
+            level: Current game level for block generation
             
         Returns:
-            list[State]: All valid successor states
+            list[State]: Valid successor states
+            
+        Complexity:
+            O(b*r*p) where:
+            b = number of blocks
+            r = rotations per block (max 4)
+            p = possible positions (~grid_size^2)
         """
         successors = []
         
         for i, (block, color) in enumerate(self.blocks):
-            # Try all rotations of current block
+            # Try all rotations
             for rotation in get_rotations(block):
-                # Try all possible positions
+                # Try all positions
                 for x in range(self.grid_size):
                     for y in range(self.grid_size):
                         if can_place_block(rotation, x, y, self.grid, self.grid_size):
-                            # Create new grid with block placed
+                            # Create new state with block placed
                             new_grid = [row.copy() for row in self.grid]
                             place_block(rotation, x, y, color, new_grid, self.grid_size)
                             clear_completed_lines(new_grid, self.grid_size)
                             
-                            # Update available blocks
+                            # Update block inventory
                             new_blocks = self.blocks.copy()
                             new_blocks.pop(i)
                             
-                            # Replenish blocks if empty (using level-appropriate set)
+                            # Replenish if empty
                             if not new_blocks:
                                 new_blocks = LEVEL_BLOCKS[level].copy()
                             
-                            # Record action details
-                            action = (rotation, color, x, y)
-                            
-                            # Create new state (preserving tolerance)
                             successors.append(
-                                State(new_grid, new_blocks, self.grid_size, 
-                                     self.moves + 1, self, action, self.tolerance)
+                                State(
+                                    new_grid, 
+                                    new_blocks, 
+                                    self.grid_size,
+                                    self.moves + 1, 
+                                    self, 
+                                    (rotation, color, x, y),
+                                    self.tolerance
+                                )
                             )
         return successors
 
     def __hash__(self):
         """
-        Generate a hash for efficient state storage and comparison.
-        
-        Creates immutable tuples from grid and blocks to enable hashing.
-        Blocks are sorted to ensure consistent hashing regardless of order.
+        Generate hash for state comparison and storage.
         
         Returns:
-            int: Hash value representing this state
+            int: Hash based on immutable grid and sorted blocks
+            
+        Note:
+            Sorting blocks ensures order doesn't affect equality
         """
         grid_tuple = tuple(tuple(row) for row in self.grid)
         blocks_tuple = tuple(sorted((tuple(map(tuple, b)), color) 
-                           for (b, color) in self.blocks))
+                         for (b, color) in self.blocks))
         return hash((grid_tuple, blocks_tuple))
 
     def __eq__(self, other):
         """
-        Check if two states are equivalent.
-        
-        States are equal if they have identical grids and the same blocks
-        (regardless of block order).
+        Test state equality (ignores move count and parent).
         
         Args:
-            other (State): State to compare against
+            other: State to compare
             
         Returns:
-            bool: True if states are equivalent
+            bool: True if grids and blocksets match
         """
         if not isinstance(other, State):
             return False
@@ -156,14 +170,15 @@ class State:
 
     def __lt__(self, other):
         """
-        Compare states for priority queue ordering based on heuristic value.
-        
-        Used by search algorithms to prioritize promising states.
+        Compare states for priority queue ordering.
         
         Args:
-            other (State): State to compare against
+            other: State to compare
             
         Returns:
-            bool: True if this state has lower heuristic value
+            bool: True if this state has better heuristic value
+            
+        Note:
+            Used by A* and other informed search algorithms
         """
         return combined_heuristic(self.grid, self.blocks) < combined_heuristic(other.grid, other.blocks)
