@@ -6,9 +6,11 @@
   * Cada jogador recebe peças com formatos geométricos diferentes.
   * As peças devem ser colocadas de forma a maximizar o espaço ocupado e evitar bloqueios futuros.
   * O jogo termina quando o tabuleiro é completamente preechido pelas peças disponíveis e forma uma matriz vazia.
- <img width="692" alt="Captura de Tela 2025-04-06 às 12 32 06" src="https://github.com/user-attachments/assets/38851a86-5502-4b6f-b2e7-31f24cb7136f" />
+    
+ <img width="517" alt="Captura de Tela 2025-04-07 às 00 13 30" src="https://github.com/user-attachments/assets/924ec2ea-d489-4290-821c-b6bed396eab0" />
 
-<img width="407" alt="Captura de Tela 2025-04-06 às 12 40 32" src="https://github.com/user-attachments/assets/04d09c48-f8f5-49e1-bb6b-876d62893f35" />
+<img width="413" alt="Captura de Tela 2025-04-07 às 00 10 38" src="https://github.com/user-attachments/assets/8be28e74-cec9-4c81-ae68-af61bded7574" />
+
 
 # Descrição
 * Para este projeto, foi desenvolvido um algoritmo para o jogo Wood Block, implementando diferentes métodos de pesquisa de IA.
