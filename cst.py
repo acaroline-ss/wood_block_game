@@ -41,6 +41,7 @@ MENU_ASSETS = {
     "main_bg": "assets/sem_menu.png",
     "modes_bg": "assets/sem_menu.png", 
     "levels_bg": "assets/sem_menu.png",
+    "algorithm_bg" : "assets/sem_menu.png",
     "tabua1": "assets/tabua1.png",
 }
 

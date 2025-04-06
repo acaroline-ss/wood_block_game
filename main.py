@@ -114,57 +114,7 @@ def show_main_menu(screen):
                 for btn in buttons:
                     if btn["rect"].collidepoint(event.pos):
                         return btn["action"]
-
-def show_algorithm_menu(screen):
-    """Display algorithm selection menu for computer mode.
-    
-    Args:
-        screen: Pygame display surface
-        
-    Returns:
-        str: Selected algorithm or "back"/"quit"
-    """
-    font = pygame.font.SysFont("Luckiest Guy", 36)
-    buttons = [
-        {"text": "BFS", "rect": pygame.Rect(WIDTH//2-100, 200, 200, 50), "action": "bfs"},
-        {"text": "DFS", "rect": pygame.Rect(WIDTH//2-100, 270, 200, 50), "action": "dfs"},
-        {"text": "Greedy", "rect": pygame.Rect(WIDTH//2-100, 340, 200, 50), "action": "greedy"},
-        {"text": "A*", "rect": pygame.Rect(WIDTH//2-100, 410, 200, 50), "action": "a_star"},
-        {"text": "Back", "rect": pygame.Rect(WIDTH//2-100, 480, 200, 50), "action": "back"}
-    ]
-    
-    while True:
-        mouse_pos = pygame.mouse.get_pos()
-        
-        # Draw menu
-        try:
-            bg = pygame.image.load(MENU_ASSETS["main_bg"]).convert()
-            screen.blit(bg, (0, 0))
-        except Exception as e:
-            print(f"Error loading background: {e}")
-            screen.fill((139, 69, 19))
-        
-        title = pygame.font.SysFont("Luckiest Guy", 48).render(
-            "Select Algorithm", True, (240, 220, 180))
-        screen.blit(title, (WIDTH//2 - title.get_width()//2, 100))
-        
-        for btn in buttons:
-            color = (100, 70, 30) if btn["rect"].collidepoint(mouse_pos) else (70, 40, 10)
-            pygame.draw.rect(screen, color, btn["rect"], border_radius=8)
-            pygame.draw.rect(screen, (50, 30, 10), btn["rect"], 2, border_radius=8)
-            
-            btn_text = font.render(btn["text"], True, (240, 220, 180))
-            screen.blit(btn_text, btn_text.get_rect(center=btn["rect"].center))
-        
-        pygame.display.flip()
-        
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                return "quit"
-            if event.type == pygame.MOUSEBUTTONDOWN:
-                for btn in buttons:
-                    if btn["rect"].collidepoint(event.pos):
-                        return btn["action"]
+               
 
 # Level configurations
 LEVEL_CONFIG = {
@@ -174,6 +124,8 @@ LEVEL_CONFIG = {
     3: {"size": 6, "grid": [[1, 1, 0, 0, 0, 0], [1, 1, 0, 1, 1, 1], [0, 0, 0, 0, 0, 1],
                            [0, 0, 0, 0, 1, 1], [0, 0, 0, 0, 1, 0], [0, 1, 0, 0, 0, 0]]}
 }
+
+
 
 def initialize_level(level):
     """Set up game state for a specific level.
@@ -192,7 +144,7 @@ def initialize_level(level):
             for row in config["grid"]]
     
     blocks = LEVEL_BLOCKS[level].copy()
-    target_moves = {1: 5, 2: 12, 3: 44}.get(level, 5)
+    target_moves = {1: 5, 2: 4, 3: 44}.get(level, 5)
     moves_made = 0
     score = 100
 
@@ -559,6 +511,8 @@ def main():
     main_menu = MainMenu(screen)
     game_mode_menu = GameModeMenu(screen)
     level_menu = LevelMenu(screen)
+    algorithm_menu = AlgorithmMenu(screen)
+    about_menu = AboutMenu(screen)
     current_algorithm = "greedy"
     
     while True:
@@ -567,6 +521,8 @@ def main():
             action = main_menu.run()
             if action == "play":
                 current_state = "game_mode"
+            elif action == "about": 
+                current_state = "about"
             elif action == "quit":
                 break
         
@@ -584,13 +540,23 @@ def main():
             elif action == "back":
                 current_state = "main_menu"
         
+        elif current_state == "about":
+            action = about_menu.run()
+            if action == "back":
+                current_state = "main_menu"
+            elif action == "quit":
+                break
+        
         elif current_state == "algorithm_select":
-            algorithm = show_algorithm_menu(screen)
+            algorithm = algorithm_menu.run() 
+            #algorithm = show_algorithm_menu(screen)
             if algorithm == "back":
                 current_state = "game_mode"
             elif algorithm in ["bfs", "dfs", "greedy", "a_star"]:
                 current_algorithm = algorithm
                 current_state = "level_select"
+            elif algorithm == "quit":
+                break
         
         elif current_state == "level_select":
             level = level_menu.run()

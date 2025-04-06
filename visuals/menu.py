@@ -31,7 +31,8 @@ class BackgroundManager:
         self.backgrounds = {
             "main": self._load_bg(MENU_ASSETS["main_bg"]),
             "modes": self._load_bg(MENU_ASSETS["modes_bg"]),
-            "levels": self._load_bg(MENU_ASSETS["levels_bg"])
+            "levels": self._load_bg(MENU_ASSETS["levels_bg"]),
+            "algorithms": self._load_bg(MENU_ASSETS["algorithm_bg"])
         }
     
     def _load_bg(self, path):
@@ -178,3 +179,121 @@ class LevelMenu:
                 button.draw(self.screen)
             
             pygame.display.flip() 
+
+class AlgorithmMenu:
+    def __init__(self, screen):
+        self.screen = screen
+        self.bg_manager = BackgroundManager()
+        
+        # Button configuration
+        start_y = 200                  # Initial button height
+        spacing = 90                  # Space between buttons
+        
+        self.buttons = [
+            Button("BFS", (WIDTH//2, start_y), "bfs"),
+            Button("DFS", (WIDTH//2, start_y + spacing), "dfs"),
+            Button("Greedy", (WIDTH//2, start_y + 2*spacing), "greedy"),
+            Button("A*", (WIDTH//2, start_y + 3*spacing), "a_star"),
+            Button("Voltar", (WIDTH//2, start_y + 4*spacing), "back")
+        ]
+
+    def run(self):
+        while True:
+            self.bg_manager.draw(self.screen, "algorithms")
+            
+            FONT_STYLE = "fonts/LuckiestGuy-Regular.ttf"
+            try:
+                font = pygame.font.Font(FONT_STYLE, 48)  # Size 48
+            except:
+                font = pygame.font.SysFont("Arial", 48)  # Fallback if font fails
+            title = render_text_with_outline(font, "Selecione o Algoritmo", (255, 180, 0))
+            self.screen.blit(title, (WIDTH//2 - title.get_width()//2, 70))
+            
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return "quit"
+                
+                for button in self.buttons:
+                    if button.handle_event(event):
+                        return button.action
+            
+            for button in self.buttons:
+                button.draw(self.screen)
+            
+            pygame.display.flip()
+
+
+class AboutMenu:
+    def __init__(self, screen):
+        self.screen = screen
+        self.bg_manager = BackgroundManager()
+        self.menu_button = Button("Menu", (100, HEIGHT - 70), "back")
+
+    def run(self):
+        while True:
+            self.bg_manager.draw(self.screen, "main")  # Using main background or you can add specific one
+            
+            # Title
+            try:
+                font = pygame.font.Font("fonts/LuckiestGuy-Regular.ttf", 48)
+                small_font = pygame.font.Font("fonts/LuckiestGuy-Regular.ttf", 20)
+            except:
+                font = pygame.font.SysFont("Arial", 48, bold=True)
+                small_font = pygame.font.SysFont("Arial", 24, bold=True)
+
+            title = render_text_with_outline(font, "Sobre o Jogo", (255, 250, 200))
+            self.screen.blit(title, (WIDTH//2 - title.get_width()//2, 70))
+
+            # Main text (wrapped)
+            about_text = [
+                "Bem-vindos ao Wood Block Puzzle!",
+                "",
+                "Divirta-se com três modos de jogo:",
+                "- Modo Humano: controle total manual",
+                "- Modo PC: algoritmos inteligentes "
+                "  resolvem os níveis",
+                "- Modo Assistente: "
+                "  peça ajuda ao algoritmo quando precisar",
+                "",
+                "Cuidado com as pontuações!",
+                "Menos movimentos = mais pontos!",
+                "Dicas custam pontos preciosos!",
+                "",
+                "Prepare-se para o desafio e divirta-se!"
+            ]
+
+            # Render wrapped text
+            y_offset = 150
+            for line in about_text:
+                if line:  # Skip empty lines (spacing)
+                    text_surface = small_font.render(line, True, (255, 250, 250))
+                    self.screen.blit(text_surface, (WIDTH//2 - text_surface.get_width()//2, y_offset))
+                y_offset += 30
+
+            # Developers text (bottom right) - Multi-line version
+            dev_lines = [
+                "Desenvolvido por:",
+                "Alice de Azevedo Silva", 
+                "Ana Carolina Soares Silva",
+                "Beatriz Morais Vieira"
+                ]
+            
+            # Calculate total height needed (4 lines × 30px spacing = 120px total)
+            total_text_height = len(dev_lines) * 30
+            dev_y = HEIGHT - total_text_height - 20 
+
+            for i, line in enumerate(dev_lines):
+                dev_text = small_font.render(line, True, (230, 230, 230))
+                self.screen.blit(dev_text, (WIDTH - dev_text.get_width() - 20, dev_y + i*30))
+
+            # Menu button
+            self.menu_button.draw(self.screen)
+
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    return "quit"
+                
+                if self.menu_button.handle_event(event):
+                    return self.menu_button.action
+            
+            pygame.display.flip()
