@@ -1,82 +1,77 @@
+# victory.py
 import pygame
-from cst import *
+from pathlib import Path
+from cst import WIDTH, HEIGHT, TITLE_FONT
 from visuals.buttons import Button
 
 class VictoryScreen:
-    """Victory screen displayed when the player successfully completes a level.
-    
-    Shows congratulatory message, final score, and provides navigation options.
-    
-    Attributes:
-        screen (pygame.Surface): The main game display surface
-        score (int): The player's achieved score
-        buttons (list): List of action buttons for navigation
-    """
-    
     def __init__(self, screen, score):
-        """Initialize the victory screen.
-        
-        Args:
-            screen (pygame.Surface): The game's main display surface
-            score (int): The final score the player achieved
-        """
         self.screen = screen
         self.score = score
-        # Create navigation buttons centered horizontally with vertical spacing
-        # Button positions calculated relative to screen width for responsiveness
-        self.buttons = [
-            Button("Próximo Nível", (WIDTH//2-150, 300), "next_level"),  # Continue to next level
-            Button("Menu Principal", (WIDTH//2-150, 380), "main_menu")   # Return to main menu
-        ]
         
+        # Cores ajustadas
+        self.GREEN_NEON = (57, 255, 20)      # Verde neon vibrante
+        self.DARK_BROWN = (101, 67, 33)      # Marrom bem escuro
+        self.BLACK = (0, 0, 0)               # Preto para borda
+        
+        # Carrega o background
+        try:
+            bg_path = Path(__file__).parent.parent / "assets" / "victory_bg.png"
+            self.background = pygame.image.load(str(bg_path)).convert()
+            self.background = pygame.transform.scale(self.background, (WIDTH, HEIGHT))
+        except:
+            self.background = pygame.Surface((WIDTH, HEIGHT))
+            self.background.fill((25, 25, 112))
+        
+        # Prepara o título com borda preta
+        self.title_text = "VOCÊ VENCEU!"
+        self.title_main = TITLE_FONT.render(self.title_text, True, self.GREEN_NEON)
+        self.title_outline = TITLE_FONT.render(self.title_text, True, self.BLACK)
+        
+        # Posição do título (centralizado)
+        self.title_rect = self.title_main.get_rect(center=(WIDTH//2, 120))
+        
+        # Fonte da pontuação
+        self.score_font = pygame.font.Font(None, 40)  # Aumentei para 40px
+        
+        # Botões
+        self.buttons = [
+            Button("Próximo Nível", (WIDTH//2, 320), "next_level", "victory"),
+            Button("Menu Principal", (WIDTH//2, 420), "main_menu", "victory")
+        ]
 
     def run(self):
-        """Run the victory screen loop.
+        clock = pygame.time.Clock()
         
-        Returns:
-            str: The action to take after screen closes:
-                - "next_level": Proceed to next level
-                - "main_menu": Return to main menu
-                - "quit": Quit the game
-                
-        Displays:
-            - Semi-transparent overlay over game background
-            - Victory message in green
-            - Final score in white
-            - Navigation buttons with hover effects
-        """
         while True:
-            # Create semi-transparent overlay to dim the background
-            # This makes victory elements stand out while showing completed level
-            overlay = pygame.Surface((WIDTH, HEIGHT), pygame.SRCALPHA)  # SRCALPHA enables transparency
-            overlay.fill((0, 0, 0, 180))  # Black with 70% opacity (180/255)
-            self.screen.blit(overlay, (0, 0))
-            
-            # Display victory message in bright green for positive feedback
-            title_font = pygame.font.SysFont("Luckiest Guy", 72)  # Playful, bold font
-            title = title_font.render("Você Venceu!", True, (100, 255, 100))  # Light green
-            # Center title horizontally
-            self.screen.blit(title, (WIDTH//2 - title.get_width()//2, 150))
-            
-            # Display final score in white for clear readability
-            score_font = pygame.font.SysFont("Luckiest Guy", 48)  # Slightly smaller than title
-            score_text = score_font.render(f"Pontuação Final: {self.score}", True, WHITE)
-            # Center score below title
-            self.screen.blit(score_text, (WIDTH//2 - score_text.get_width()//2, 250))
-            
-            # Handle events
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return "quit"  # Quit if window closed
+                    return "quit"
                 
-                # Check for button clicks
                 for button in self.buttons:
                     if button.handle_event(event):
-                        return button.action  # Return corresponding action
+                        return button.action
             
-            # Draw all buttons
+            # Renderização
+            self.screen.blit(self.background, (0, 0))
+            
+            # Desenha borda do título (em 4 posições para criar contorno)
+            for offset in [(-2,-2), (2,-2), (-2,2), (2,2)]:
+                self.screen.blit(self.title_outline, 
+                               (self.title_rect.x + offset[0], 
+                                self.title_rect.y + offset[1]))
+            
+            # Título principal
+            self.screen.blit(self.title_main, self.title_rect)
+            
+            # Pontuação escura
+            score_text = self.score_font.render(f"Pontuação Final: {self.score}", 
+                                              True, self.DARK_BROWN)
+            self.screen.blit(score_text, (WIDTH//2 - score_text.get_width()//2, 200))
+            
+            # Botões
             for button in self.buttons:
                 button.draw(self.screen)
             
-            # Update display
             pygame.display.flip()
+            clock.tick(60)

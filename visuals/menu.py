@@ -1,129 +1,131 @@
-# menu.py
-"""Menu system for the Wood Block Puzzle game.
-
-Contains all menu classes including:
-- MainMenu: Primary game menu with core options
-- GameModeMenu: Mode selection screen
-- LevelMenu: Level selection interface
-
-All menus follow consistent visual styling with wood-themed colors and fonts.
-"""
-
+#menu.py
 import pygame
 from cst import *
 from visuals.buttons import Button
 
+def render_text_with_outline(font, text, text_color=(255, 180, 0), outline_color=(0, 0, 0), outline_size=4):
+    """Renderiza texto com borda. Cores padrão: amarelo-alaranjado com borda preta"""
+    text_surface = font.render(text, True, text_color)
+    outline_surface = font.render(text, True, outline_color)
+    
+    # Cria uma superfície ligeiramente maior para acomodar a borda
+    combined = pygame.Surface(
+        (text_surface.get_width() + outline_size*2, text_surface.get_height() + outline_size*2), 
+        pygame.SRCALPHA
+    )
+    
+    # Desenha a borda em todas as direções
+    for x in range(-outline_size, outline_size+1):
+        for y in range(-outline_size, outline_size+1):
+            if x != 0 or y != 0:  # Não desenha no centro
+                combined.blit(outline_surface, (outline_size + x, outline_size + y))
+    
+    # Desenha o texto principal no centro
+    combined.blit(text_surface, (outline_size, outline_size))
+    
+    return combined
+
+# Adicione no início do menu.py
+class BackgroundManager:
+    def __init__(self):
+        self.backgrounds = {
+            "main": self._load_bg(MENU_ASSETS["main_bg"]),
+            "modes": self._load_bg(MENU_ASSETS["modes_bg"]),
+            "levels": self._load_bg(MENU_ASSETS["levels_bg"])
+        }
+    
+    def _load_bg(self, path):
+        try:
+            bg = pygame.image.load(path).convert()
+            return pygame.transform.scale(bg, (WIDTH, HEIGHT))
+        except:
+            return None
+    
+    def draw(self, screen, menu_type):
+        bg = self.backgrounds.get(menu_type)
+        if bg:
+            # Redimensiona se necessário (opcional)
+            bg = pygame.transform.scale(bg, (WIDTH, HEIGHT))
+            screen.blit(bg, (0, 0))
+        else:
+            screen.fill((139, 69, 19))  # Fallback
+
 class MainMenu:
-    """Handles the main menu screen and navigation.
-    
-    Attributes:
-        screen (pygame.Surface): The game's display surface
-        buttons (list): Collection of menu action buttons
-    """
-    
     def __init__(self, screen):
-        """Initialize main menu with navigation options.
-        
-        Args:
-            screen (pygame.Surface): Game display surface
-        """
         self.screen = screen
-        # Create vertically stacked buttons centered on screen
-        # Each button has:
-        # - Display text
-        # - Position (centered horizontally with vertical spacing)
-        # - Action string to return when clicked
+        self.bg_manager = BackgroundManager()
         self.buttons = [
-            Button("Jogar", (WIDTH//2-100, 200), "play"),          # Start game
-            Button("Configurações", (WIDTH//2-100, 280), "settings"),  # Settings
-            Button("Sobre", (WIDTH//2-100, 360), "about"),         # About screen
-            Button("Sair", (WIDTH//2-100, 440), "quit")            # Exit game
+            Button("Jogar", (WIDTH//2,250), "play"),
+            Button("Sobre", (WIDTH//2, 350), "about"),
+            Button("Sair", (WIDTH//2,450), "quit")
         ]
 
     def run(self):
-        """Run the main menu loop.
-        
-        Returns:
-            str: Action identifier based on user selection:
-                - "play": Start the game
-                - "settings": Open settings
-                - "about": Show about screen
-                - "quit": Exit game
-        """
         while True:
-            # Fill with SaddleBrown color (RGB: 139, 69, 19)
-            # This creates a warm wood-like background
-            self.screen.fill((139, 69, 19))
+            self.bg_manager.draw(self.screen, "main")
             
-            # Draw game title with decorative font
-            # Using "Luckiest Guy" for playful, casual feel
-            font = pygame.font.SysFont("Luckiest Guy", 64)
-            title = font.render("Wood Block Puzzle", True, (240, 220, 180))  # Antique white
-            # Center title horizontally near top of screen
-            self.screen.blit(title, (WIDTH//2 - title.get_width()//2, 80))
+            # Título
+    # ===== NOVO TÍTULO HIERARQUICO ===== #
+            try:
+                big_font = pygame.font.Font("fonts/LuckiestGuy-Regular.ttf", 72)    # Fonte grande
+                small_font = pygame.font.Font("fonts/LuckiestGuy-Regular.ttf", 36)   # Fonte menor
+            except:
+                big_font = pygame.font.SysFont("Arial", 72, bold=True)             # Fallback
+                small_font = pygame.font.SysFont("Arial", 36, bold=True)
+
+            # Renderiza "WOOD BLOCK" grande
+            wood_block = render_text_with_outline(big_font, "WOOD BLOCK", (255, 180, 0))
+            wood_block_pos = (WIDTH//2 - wood_block.get_width()//2, 70)  # Posição Y ajustada
+
+            # Renderiza "GAME" menor
+            game = render_text_with_outline(small_font, "GAME", (255, 180, 0))
+            game_pos = (WIDTH//2 - game.get_width()//2, wood_block_pos[1] + wood_block.get_height() - 15)
+
+            # Desenha na tela
+            self.screen.blit(wood_block, wood_block_pos)
+            self.screen.blit(game, game_pos)
+            # ===== FIM DO NOVO TÍTULO ===== #
             
-            # Event handling loop
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    return "quit"  # Window close button
+                    return "quit"
                 
-                # Check button interactions
                 for button in self.buttons:
                     if button.handle_event(event):
-                        return button.action  # Return the button's action
+                        return button.action
             
-            # Draw all buttons
             for button in self.buttons:
                 button.draw(self.screen)
             
-            # Update display
             pygame.display.flip()
-
 
 class GameModeMenu:
-    """Handles game mode selection screen.
-    
-    Attributes:
-        screen (pygame.Surface): Game display surface
-        buttons (list): Mode selection options
-    """
-    
     def __init__(self, screen):
-        """Initialize mode selection menu.
-        
-        Args:
-            screen (pygame.Surface): Game display surface
-        """
         self.screen = screen
-        # Mode selection buttons with same layout as main menu
+        self.bg_manager = BackgroundManager()
+        # Configurações de posição (ajuste apenas esses valores)
+        start_y = 200                  # Altura inicial dos botões
+        spacing = 90                   # Espaço entre botões
+
         self.buttons = [
-            Button("Modo Humano", (WIDTH//2-100, 200), "human"),      # Human player
-            Button("Modo PC", (WIDTH//2-100, 280), "pc"),            # AI player
-            Button("Modo Assistido", (WIDTH//2-100, 360), "assistant"),  # Assisted play
-            Button("Voltar", (WIDTH//2-100, 440), "back")             # Return to main
+            Button("Modo Humano", (WIDTH//2,start_y), "human"),
+            Button("Modo PC", (WIDTH//2, start_y + spacing), "pc"),
+            Button("Modo Assistente", (WIDTH//2, start_y + 2*spacing), "assistant"),
+            Button("Voltar", (WIDTH//2, start_y + 3*spacing), "back")
         ]
 
     def run(self):
-        """Run the mode selection loop.
-        
-        Returns:
-            str: Selected mode or navigation action:
-                - "human": Human vs human mode
-                - "pc": AI vs AI mode
-                - "assistant": Human with AI hints
-                - "back": Return to main menu
-                - "quit": Exit game
-        """
         while True:
-            # Consistent background with main menu
-            self.screen.fill((139, 69, 19))
+            self.bg_manager.draw(self.screen, "modes")
             
-            # Draw mode selection title
-            font = pygame.font.SysFont("Luckiest Guy", 48)
-            title = font.render("Selecione o Modo", True, (240, 220, 180))
-            self.screen.blit(title, (WIDTH//2 - title.get_width()//2, 100))
+            FONT_STYLE = "fonts/LuckiestGuy-Regular.ttf"
+            try:
+                font = pygame.font.Font(FONT_STYLE, 48)  # Tamanho 48
+            except:
+                font = pygame.font.SysFont("Arial", 48)  # Fallback se a fonte falhar
+            title = render_text_with_outline(font, "Selecione o Modo", (255, 180, 0))
+            self.screen.blit(title, (WIDTH//2 - title.get_width()//2, 70))
             
-            # Event handling
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return "quit"
@@ -132,55 +134,38 @@ class GameModeMenu:
                     if button.handle_event(event):
                         return button.action
             
-            # Draw all buttons
             for button in self.buttons:
                 button.draw(self.screen)
             
             pygame.display.flip()
-
 
 class LevelMenu:
-    """Handles level selection screen.
-    
-    Attributes:
-        screen (pygame.Surface): Game display surface
-        buttons (list): Level selection options
-    """
-    
     def __init__(self, screen):
-        """Initialize level selection menu.
-        
-        Args:
-            screen (pygame.Surface): Game display surface
-        """
         self.screen = screen
-        # Level buttons return level numbers (int) except back button
+        self.bg_manager = BackgroundManager()
+
+        start_y = 200                  # Altura inicial dos botões
+        spacing = 90    
+
         self.buttons = [
-            Button("Nível 1", (WIDTH//2-100, 200), 1),    # Level 1
-            Button("Nível 2", (WIDTH//2-100, 280), 2),    # Level 2
-            Button("Nível 3", (WIDTH//2-100, 360), 3),    # Level 3
-            Button("Voltar", (WIDTH//2-100, 440), "back")  # Return
+            Button("Nível 1", (WIDTH//2,start_y), 1),
+            Button("Nível 2", (WIDTH//2,start_y + spacing), 2),
+            Button("Nível 3", (WIDTH//2, start_y + 2*spacing), 3),
+            Button("Voltar", (WIDTH//2, start_y + 3*spacing), "back")
         ]
 
     def run(self):
-        """Run the level selection loop.
-        
-        Returns:
-            int/str: Selected level or navigation action:
-                - 1-3: Selected level number
-                - "back": Return to previous menu
-                - "quit": Exit game
-        """
         while True:
-            # Consistent background
-            self.screen.fill((139, 69, 19))
+            self.bg_manager.draw(self.screen, "levels")
             
-            # Draw level selection title
-            font = pygame.font.SysFont("Luckiest Guy", 48)
-            title = font.render("Selecione o Nível", True, (240, 220, 180))
-            self.screen.blit(title, (WIDTH//2 - title.get_width()//2, 100))
+            FONT_STYLE = "fonts/LuckiestGuy-Regular.ttf"
+            try:
+                font = pygame.font.Font(FONT_STYLE, 48)  # Tamanho 48
+            except:
+                font = pygame.font.SysFont("Arial", 48)  # Fallback se a fonte falhar
+            title = render_text_with_outline(font, "Selecione o Nível", (255, 180, 0))
+            self.screen.blit(title, (WIDTH//2 - title.get_width()//2, 70))
             
-            # Event handling
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return "quit"
@@ -189,8 +174,7 @@ class LevelMenu:
                     if button.handle_event(event):
                         return button.action
             
-            # Draw all buttons
             for button in self.buttons:
                 button.draw(self.screen)
             
-            pygame.display.flip()
+            pygame.display.flip() 

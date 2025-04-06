@@ -18,8 +18,18 @@ from visuals.levels import *
 from visuals.game_over import *
 from visuals.menu import *
 from visuals.helpers import *
-from visuals.assets import *
+from assets import *
 from visuals.buttons import *
+import os
+import sys
+from pathlib import Path
+
+# Garante que o Python comece a procurar arquivos na pasta do projeto
+PROJECT_ROOT = Path(__file__).parent
+os.chdir(PROJECT_ROOT)  # Muda o diretório de trabalho
+sys.path.append(str(PROJECT_ROOT))  # Adiciona ao PATH do Python
+
+print(f"Diretório corrigido para: {PROJECT_ROOT}")
 
 # Initialize Pygame
 pygame.init()
@@ -45,15 +55,6 @@ class GameState:
     VICTORY = 5
 
 def show_main_menu(screen):
-    """
-    Display the main menu and handle user input.
-    
-    Args:
-        screen (pygame.Surface): The game window surface.
-    
-    Returns:
-        str: The action to take ("quit" or GameState constant).
-    """
     font = pygame.font.SysFont("Luckiest Guy", 48)
     buttons = [
         {"text": "Jogar", "rect": pygame.Rect(WIDTH//2-100, 200, 200, 50), "action": GameState.LEVEL_SELECTION},
@@ -63,20 +64,20 @@ def show_main_menu(screen):
     while True:
         mouse_pos = pygame.mouse.get_pos()
         
-        # Draw background (fallback to solid color if image fails)
+        # Desenhar fundo
         try:
-            bg = pygame.image.load("assets/menu_bg.jpg").convert()
+            bg = pygame.image.load(MENU_ASSETS["main_bg"]).convert()
             screen.blit(bg, (0, 0))
-        except:
-            screen.fill((139, 69, 19))  # Fallback brown color
+        except Exception as e:
+            print(f"Erro ao carregar background: {e}")
+            screen.fill((139, 69, 19))  # Fallback
         
-        # Draw title
+        # Desenhar título
         title = font.render("Wood Block Puzzle", True, (240, 220, 180))
         screen.blit(title, (WIDTH//2 - title.get_width()//2, 100))
         
-        # Draw and handle buttons
+        # Desenhar botões
         for btn in buttons:
-            # Highlight button on hover
             color = (100, 70, 30) if btn["rect"].collidepoint(mouse_pos) else (70, 40, 10)
             pygame.draw.rect(screen, color, btn["rect"], border_radius=8)
             pygame.draw.rect(screen, (50, 30, 10), btn["rect"], 2, border_radius=8)
@@ -94,17 +95,8 @@ def show_main_menu(screen):
                 for btn in buttons:
                     if btn["rect"].collidepoint(event.pos):
                         return btn["action"]
-
+    
 def show_algorithm_menu(screen):
-    """
-    Display algorithm selection menu for PC mode.
-    
-    Args:
-        screen (pygame.Surface): The game window surface.
-    
-    Returns:
-        str: Selected algorithm or "back" to return.
-    """
     font = pygame.font.SysFont("Luckiest Guy", 36)
     buttons = [
         {"text": "BFS", "rect": pygame.Rect(WIDTH//2-100, 200, 200, 50), "action": "bfs"},
@@ -116,7 +108,14 @@ def show_algorithm_menu(screen):
     
     while True:
         mouse_pos = pygame.mouse.get_pos()
-        screen.fill((139, 69, 19))  # Wood background
+        
+        # Desenhar fundo
+        try:
+            bg = pygame.image.load(MENU_ASSETS["main_bg"]).convert()
+            screen.blit(bg, (0, 0))
+        except Exception as e:
+            print(f"Erro ao carregar background: {e}")
+            screen.fill((139, 69, 19))  # Fallback
         
         # Draw title
         title_font = pygame.font.SysFont("Luckiest Guy", 48)
@@ -143,74 +142,59 @@ def show_algorithm_menu(screen):
                     if btn["rect"].collidepoint(event.pos):
                         return btn["action"]
 
-# Level configuration
-LEVEL_CONFIG = {
-    1: {
-        "size": 4,
-        "grid": [
-            [1, 0, 0, 0],
-            [1, 0, 0, 0],
-            [0, 1, 1, 0],
-            [0, 0, 0, 0]
-        ]
-    },
-    2: {
-        "size": 5,
-        "grid": [
-            [1, 0, 0, 0, 0],
-            [1, 0, 0, 1, 0],
-            [1, 0, 0, 1, 0],
-            [0, 0, 1, 1, 0],
-            [0, 0, 1, 1, 0]
-        ]
-    },
-    3: {
-        "size": 6,
-        "grid": [
-            [1, 1, 0, 0, 0, 0],
-            [1, 1, 0, 1, 1, 1],
-            [0, 0, 0, 0, 0, 1],
-            [0, 0, 0, 0, 1, 1],
-            [0, 0, 0, 0, 1, 0],
-            [0, 1, 0, 0, 0, 0]
-        ]
-    },
+# Define grid sizes for each level
+LEVEL_GRID_SIZES = {
+    1: 4,  # Level 1: 4x4 grid
+    2: 5,  # Level 2: 5x5 grid
+    3: 6,  # Level 3: 6x6 grid
+}
+
+# Pre-filled grids for each level (from second code)
+LEVEL_PRE_FILLED = {
+    1: [  # Level 1 grid with some pre-filled cells
+        [1, 0, 0, 0],
+        [1, 0, 0, 0],
+        [0, 1, 1, 0],
+        [0, 0, 0, 0]
+    ],
+    2: [  # Level 2 grid with some pre-filled cells
+        [1, 0, 0, 0, 0],
+        [1, 0, 0, 1, 0],
+        [1, 0, 0, 1, 0],
+        [0, 0, 1, 1, 0],
+        [0, 0, 1, 1, 0]
+    ],
+    3: [  # Level 3 grid with some pre-filled cells
+        [1, 1, 0, 0, 0, 0],
+        [1, 1, 0, 1, 1, 1],
+        [0, 0, 0, 0, 0, 1],
+        [0, 0, 0, 0, 1, 1],
+        [0, 0, 0, 0, 1, 0],
+        [0, 1, 0, 0, 0, 0]
+    ],
 }
 
 def initialize_level(level):
     """
-    Initialize game state for a specific level.
-    
-    Args:
-        level (int): The level number (1-3) to initialize.
+    Initialize game state for a specific level (using second code's visual approach).
     """
     global GRID_SIZE, grid, blocks, target_moves, moves_made
     
-    config = LEVEL_CONFIG.get(level, LEVEL_CONFIG[1])  # Default to level 1 if invalid
-    GRID_SIZE = config["size"]
-    
-    # Convert 1s to random colors and 0s to BLACK
-    grid = [[BLACK if cell == 0 else random.choice(COLORS) 
-             for cell in row] 
-             for row in config["grid"]]
+    GRID_SIZE = LEVEL_GRID_SIZES[level]  # Set the grid size for the level
+    # Create the grid by replacing 1s with random colors and 0s with BLACK
+    grid = [[BLACK if cell == 0 else random.choice(COLORS) for cell in row] 
+            for row in LEVEL_PRE_FILLED[level]]
     
     blocks = LEVEL_BLOCKS[level].copy()  # Create a fresh copy of blocks
     
-    # Set target moves based on level
+    # Set target moves based on level (from first code)
     target_moves = {1: 5, 2: 12, 3: 44}.get(level, 5)
     moves_made = 0
     score = 100
 
 def human_mode(level, screen):
     """
-    Human player game mode.
-    
-    Args:
-        level (int): The level to play.
-        screen (pygame.Surface): The game window surface.
-    
-    Returns:
-        str: Next game state ("victory", "game_over", "quit", or "menu").
+    Human player game mode with second code's visual representation.
     """
     global selected_block, grid, blocks, score, GRID_SIZE, moves_made, target_moves
     
@@ -218,34 +202,48 @@ def human_mode(level, screen):
     running = True
     dragging = False
     selected_index = None
+    clock = pygame.time.Clock()
+    FPS = 60
 
     while running:
-        # Game state checks
+        # Game state checks (from first code)
         if no_valid_moves_left(grid, blocks, GRID_SIZE):
-            return "game_over"
+            return ("game_over", score)
         if all(cell == BLACK for row in grid for cell in row):
-            return "victory"
-        if score == 0:
-            return "game_over"
+            return ("victory", score)
+        if score <= 0:
+            return ("game_over", score)
+
+        # Get board position for rendering (from second code)
+        board_pos = render(screen, grid, blocks, score, GRID_SIZE)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "quit"
                 
-            # Block selection
+            # Block selection (from second code with first code's logic)
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                x, y = event.pos
-                if WIDTH - 150 <= x <= WIDTH and 50 <= y <= 50 + len(blocks) * 100:
-                    selected_index = (y - 50) // 100
+                x, y = pygame.mouse.get_pos()
+                PANEL_HEIGHT = 120
+                PANEL_Y = HEIGHT - PANEL_HEIGHT
+                
+                # Check if click is in the blocks panel
+                if 0 <= x <= WIDTH and PANEL_Y <= y <= HEIGHT:
+                    BLOCK_SPACING = 120
+                    total_width = len(blocks) * BLOCK_SPACING
+                    start_x = (WIDTH - total_width) // 2
+                    selected_index = (x - start_x) // BLOCK_SPACING
                     if 0 <= selected_index < len(blocks):
                         selected_block = blocks[selected_index]
                         dragging = True
-                        
-            # Block placement
+            
+            # Block placement (from second code with first code's logic)
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1 and dragging:
                 if selected_block:
                     x, y = pygame.mouse.get_pos()
-                    snapped_pos = snap_to_grid(x, y, selected_block[0], grid, GRID_SIZE, snap_range=20)
+                    rel_x = x - board_pos['x']
+                    rel_y = y - board_pos['y']
+                    snapped_pos = snap_to_grid(rel_x, rel_y, selected_block[0], grid, GRID_SIZE, snap_range=20)
                     
                     if snapped_pos:
                         grid_x, grid_y = snapped_pos
@@ -255,9 +253,9 @@ def human_mode(level, screen):
                             place_block(block, grid_x, grid_y, color, grid, GRID_SIZE)
                             moves_made += 1
                             
-                            # Calculate score based on target moves
+                            # Calculate score based on target moves (from first code)
                             if moves_made > target_moves:
-                                score -= 20  # Deduct 10 points for each move beyond target
+                                score -= 20  # Deduct 20 points for each move beyond target
                             
                             # Add bonus for line/column clears
                             lines_cleared = clear_completed_lines(grid, GRID_SIZE)
@@ -271,27 +269,26 @@ def human_mode(level, screen):
                                     blocks = LEVEL_BLOCKS[level].copy()
                             
                             if all(cell == BLACK for row in grid for cell in row):
-                                return "victory"
+                                return ("victory", score)
                 
                 # Reset dragging state
                 selected_block = None
                 dragging = False
                 selected_index = None
                 
-            # Block rotation
+            # Block rotation (from first code)
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and selected_block:
                 block, color = selected_block
                 # Rotate 90 degrees clockwise
                 selected_block = ([list(row) for row in zip(*block[::-1])], color)
 
-        # Rendering
-        screen.fill((139, 69, 19))
+        # Rendering (from second code)
         render(screen, grid, blocks, score, GRID_SIZE)
         
-        # Draw dragged block
+        # Draw dragged block (from second code)
         if dragging and selected_block:
-            x, y = pygame.mouse.get_pos()
             block, color = selected_block
+            x, y = pygame.mouse.get_pos()
             for row in range(len(block)):
                 for col in range(len(block[row])):
                     if block[row][col]:
@@ -305,32 +302,24 @@ def human_mode(level, screen):
                         )
         
         pygame.display.flip()
-        clock.tick(60)
+        clock.tick(FPS)
     
-    return "menu"
+    return "quit"  # Fallback
 
 def pc_mode(algorithm, level, screen, heuristic=None):
     """
-    Computer-controlled game mode using specified algorithm.
-    
-    Args:
-        algorithm (str): Search algorithm to use ("bfs", "dfs", "greedy", "a_star").
-        level (int): The level to solve.
-        screen (pygame.Surface): The game window surface.
-        heuristic (function, optional): Heuristic function for informed searches.
-    
-    Returns:
-        str: Next game state ("menu", "victory", "game_over", or "quit").
+    Computer-controlled game mode using specified algorithm with second code's visual representation.
     """
     global grid, blocks, score, GRID_SIZE
     
+    # Initialize level (using second code's approach)
     initialize_level(level)
     initial_state = State([row.copy() for row in grid], blocks.copy(), GRID_SIZE)
     
     # Time the algorithm execution
     start_time = time.time()
     
-    # Run selected algorithm
+    # Run selected algorithm (from first code)
     algorithm_map = {
         "bfs": lambda s: bfs(s, level),
         "dfs": lambda s: dfs(s, level),
@@ -352,7 +341,7 @@ def pc_mode(algorithm, level, screen, heuristic=None):
         current = current.parent
     path.reverse()
 
-    # Prepare move information for display
+    # Prepare move information for display (from second code)
     move_info = []
     for idx, state in enumerate(path[1:], 1):
         if state.action:
@@ -366,11 +355,11 @@ def pc_mode(algorithm, level, screen, heuristic=None):
                 "text": f"Move {idx}: ({x},{y})",
                 "block": block_surface
             })
-    
+
     # Create menu button using the same Button class as VictoryScreen
-    menu_button = Button("MENU", (20, HEIGHT - 70), "main_menu")
+    menu_button = Button("MENU", (150, HEIGHT - 70), "main_menu")
     
-    # Visualization loop
+    # Visualization loop (from second code with first code's logic)
     current_move = 0
     while current_move < len(path):
         mouse_pos = pygame.mouse.get_pos()
@@ -383,7 +372,6 @@ def pc_mode(algorithm, level, screen, heuristic=None):
                     current_move += 1
                 elif event.key == pygame.K_ESCAPE:
                     current_move = len(path) - 1
-            
             # Handle button click - returns immediately if clicked
             if menu_button.handle_event(event):
                 return menu_button.action  # Returns "main_menu"
@@ -392,16 +380,16 @@ def pc_mode(algorithm, level, screen, heuristic=None):
         state = path[current_move]
         grid = [row.copy() for row in state.grid]
         blocks = state.blocks.copy()
-        score = state.moves * 10
+        score = state.moves * 10  # From first code
         
-        # Render game
-        screen.fill((139, 69, 19))
+        # Render game (from second code)
+        screen.fill((139, 69, 19))  # Wood background
         render(screen, grid, blocks, score, GRID_SIZE)
-        
+
         # Draw menu button
         menu_button.draw(screen)
         
-        # Draw info panel on right
+        # Draw the right-side panel (from second code)
         panel_width = 250
         panel_x = WIDTH - panel_width - 10
         info_panel = pygame.Rect(panel_x, 10, panel_width, HEIGHT - 20)
@@ -410,7 +398,7 @@ def pc_mode(algorithm, level, screen, heuristic=None):
         pygame.draw.rect(screen, (100, 70, 30), info_panel, border_radius=8)
         pygame.draw.rect(screen, (50, 30, 10), info_panel, 2, border_radius=8)
         
-        # Draw algorithm info
+        # Draw algorithm info (from second code)
         y_offset = 20
         fonts = {
             "title": pygame.font.SysFont("Luckiest Guy", 28),
@@ -470,14 +458,7 @@ def pc_mode(algorithm, level, screen, heuristic=None):
 
 def computer_assisted_human_mode(level, screen):
     """
-    Human player mode with computer hints.
-    
-    Args:
-        level (int): The level to play.
-        screen (pygame.Surface): The game window surface.
-    
-    Returns:
-        str: Next game state ("victory", "game_over", "quit", or "menu").
+    Human player mode with computer hints (from first code with second code's visuals).
     """
     global selected_block, grid, blocks, score, GRID_SIZE, moves_made, target_moves
     
@@ -488,26 +469,29 @@ def computer_assisted_human_mode(level, screen):
     hint_block = None
     hint_alpha = 100  # Hint transparency
 
-    # Hint button setup
+    # Hint button setup (from first code)
     hint_button = pygame.Rect(WIDTH - 150, HEIGHT - 70, 120, 50)
     button_font = pygame.font.SysFont("Arial", 24)
 
     while running:
-        # Game state checks
+        # Game state checks (from first code)
         if no_valid_moves_left(grid, blocks, GRID_SIZE):
-            return "game_over"
+            return ("game_over", score)
         if all(cell == BLACK for row in grid for cell in row):
-            return "victory"
+            return ("victory", score)
         if score <= 0:
-            return "game_over"
+            return ("game_over", score)
+
+        # Get board position for rendering (from second code)
+        board_pos = render(screen, grid, blocks, score, GRID_SIZE)
 
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 return "quit"
                 
-            # Hint button or block selection
+            # Hint button or block selection (from first code)
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                x, y = event.pos
+                x, y = pygame.mouse.get_pos()
                 
                 if hint_button.collidepoint(x, y):
                     # Get hint using greedy algorithm
@@ -526,19 +510,24 @@ def computer_assisted_human_mode(level, screen):
                             block, color, x, y = path[0].action
                             hint_block = (block, color, x, y)
                 
-                # Block selection
-                elif WIDTH - 150 <= x <= WIDTH and 50 <= y <= 50 + len(blocks) * 100:
-                    selected_index = (y - 50) // 100
+                # Block selection (from second code)
+                elif 0 <= x <= WIDTH and HEIGHT-120 <= y <= HEIGHT:
+                    BLOCK_SPACING = 120
+                    total_width = len(blocks) * BLOCK_SPACING
+                    start_x = (WIDTH - total_width) // 2
+                    selected_index = (x - start_x) // BLOCK_SPACING
                     if 0 <= selected_index < len(blocks):
                         selected_block = blocks[selected_index]
                         dragging = True
                         hint_block = None  # Clear hint on new selection
                         
-            # Block placement
+            # Block placement (from second code with first code's logic)
             elif event.type == pygame.MOUSEBUTTONUP and event.button == 1 and dragging:
                 if selected_block:
                     x, y = pygame.mouse.get_pos()
-                    snapped_pos = snap_to_grid(x, y, selected_block[0], grid, GRID_SIZE, snap_range=20)
+                    rel_x = x - board_pos['x']
+                    rel_y = y - board_pos['y']
+                    snapped_pos = snap_to_grid(rel_x, rel_y, selected_block[0], grid, GRID_SIZE, snap_range=20)
                     
                     if snapped_pos:
                         grid_x, grid_y = snapped_pos
@@ -566,30 +555,29 @@ def computer_assisted_human_mode(level, screen):
                             hint_block = None  # Clear hint after placement
                             
                             if all(cell == BLACK for row in grid for cell in row):
-                                return "victory"
+                                return ("victory", score)
                 
                 # Reset dragging state
                 selected_block = None
                 dragging = False
                 selected_index = None
                 
-            # Block rotation
+            # Block rotation (from first code)
             elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE and selected_block:
                 block, color = selected_block
                 selected_block = ([list(row) for row in zip(*block[::-1])], color)
                 hint_block = None  # Clear hint on rotation
 
-        # Rendering
-        screen.fill((139, 69, 19))
+        # Rendering (from second code)
         render(screen, grid, blocks, score, GRID_SIZE)
         
-        # Draw hint button
+        # Draw hint button (from first code)
         pygame.draw.rect(screen, (100, 70, 30), hint_button, border_radius=5)
         pygame.draw.rect(screen, (50, 30, 10), hint_button, 2, border_radius=5)
         hint_text = button_font.render("DICA", True, (240, 220, 180))
         screen.blit(hint_text, (hint_button.x + 40, hint_button.y + 15))
         
-        # Draw hint if available
+        # Draw hint if available (from first code)
         if hint_block:
             block, color, grid_x, grid_y = hint_block
             hint_surface = pygame.Surface((len(block[0]) * BLOCK_SIZE, len(block) * BLOCK_SIZE), pygame.SRCALPHA)
@@ -603,7 +591,7 @@ def computer_assisted_human_mode(level, screen):
             
             screen.blit(hint_surface, (grid_x * BLOCK_SIZE, grid_y * BLOCK_SIZE))
         
-        # Draw dragged block
+        # Draw dragged block (from second code)
         if dragging and selected_block:
             x, y = pygame.mouse.get_pos()
             block, color = selected_block
