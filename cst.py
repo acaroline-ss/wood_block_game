@@ -42,9 +42,6 @@ MENU_ASSETS = {
     "modes_bg": "assets/sem_menu.png", 
     "levels_bg": "assets/sem_menu.png",
     "tabua1": "assets/tabua1.png",
-    # Note: Duplicate keys below - only the last one will be kept
-    "tabua1": "assets/tabua1.png",
-    "tabua1": "assets/tabua1.png",
 }
 
 # PC Mode Color Scheme
@@ -84,14 +81,14 @@ LEVEL_BLOCKS = {
 try:
     if os.path.exists("fonts/LuckiestGuy-Regular.ttf"):
         TITLE_FONT = pygame.font.Font("fonts/LuckiestGuy-Regular.ttf", 64)
-        SUBTITLE_FONT = pygame.font.Font("fonts/LuckiestGuy-Regular.ttf", 48)
+        SUBTITLE_FONT = pygame.font.Font("fonts/LuckiestGuy-Regular.ttf", 20)
     else:
         raise FileNotFoundError("Font file not found at specified path")
 except Exception as e:
     print(f"Error loading font: {e} - Using fallback system fonts")
     try:
         TITLE_FONT = pygame.font.SysFont("Impact", 64)
-        SUBTITLE_FONT = pygame.font.SysFont("Impact", 28)
+        SUBTITLE_FONT = pygame.font.SysFont("Impact", 30)
     except:
         TITLE_FONT = pygame.font.SysFont(None, 64)
-        SUBTITLE_FONT = pygame.font.SysFont(None, 48)
+        SUBTITLE_FONT = pygame.font.SysFont(None, 30)
