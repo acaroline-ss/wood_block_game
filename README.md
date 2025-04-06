@@ -5,13 +5,13 @@
 * Regras básicas:
   * Cada jogador recebe peças com formatos geométricos diferentes.
   * As peças devem ser colocadas de forma a maximizar o espaço ocupado e evitar bloqueios futuros.
-  * O jogo termina o tabuleiro é completamente preechido pelas peças disponíveis e forma uma matriz vazia.
+  * O jogo termina quando o tabuleiro é completamente preechido pelas peças disponíveis e forma uma matriz vazia.
  <img width="692" alt="Captura de Tela 2025-04-06 às 12 32 06" src="https://github.com/user-attachments/assets/38851a86-5502-4b6f-b2e7-31f24cb7136f" />
 
 <img width="407" alt="Captura de Tela 2025-04-06 às 12 40 32" src="https://github.com/user-attachments/assets/04d09c48-f8f5-49e1-bb6b-876d62893f35" />
 
 # Descrição
-* Este projeto desenvolveu um algoritmo para o jogo Wood Block, implementando diferentes métodos de pesquisa de IA.
+* Para este projeto, foi desenvolvido um algoritmo para o jogo Wood Block, implementando diferentes métodos de pesquisa de IA.
 * Funcionalidades:
   * 👤 Modo Jogador: O jogador escolhe o movimento das peças manualmente
   * 🤖 Modo IA: Escolha entre algoritmos:
@@ -19,7 +19,7 @@
      * Depth-First (DFS)
      * A*
      * Greedy Search
-  * Computer Assistent Mode: A IA fornece dicas ao jogador do posicionamento estrategico das peças
+  * Computer Assistent Mode: A IA fornece dicas ao jogador relativamente ao posicionamento estratégico das peças
 * Objetivos:
   * Simular o Wood Block com IA
   * Comparar eficiência dos algoritmos
@@ -38,8 +38,8 @@
 # Iniciando o jogo
 * **Passo 1 - Certifique-se de ter o VS code instalado**
   
-* **Passo 2 - Para iniciar o jogo é necessário ter algum interpretador python em sua máquina. Ex: python ou anaconda**
-  * Acesse o site oficial: https://www.python.org/downloads/
+* **Passo 2 - Para iniciar o jogo é necessário ter algum interpretador python na sua máquina. Ex: python ou anaconda**
+  * Aceda o site oficial: https://www.python.org/downloads/
   * Clique em "Download Python 3.x.x" (versão mais recente, ex: 3.12). O Windows/macOS/Linux serão detectados automaticamente.
   * Localize o arquivo baixado (ex: python-3.12.1-amd64.exe) e dê duplo clique.
   * Na primeira tela:
