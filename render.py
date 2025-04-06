@@ -78,8 +78,6 @@ def draw_blocks(screen, blocks, selected_index=None):
     PANEL_HEIGHT = 120
     PANEL_Y = HEIGHT - PANEL_HEIGHT
     
-    # Draw panel background
-    pygame.draw.rect(screen, (200, 200, 200), (0, PANEL_Y, WIDTH, PANEL_HEIGHT))
     
     # Calculate centered positioning
     total_width = len(blocks) * 120  # 120px spacing per block
@@ -135,6 +133,11 @@ def render_score(screen, score, board_pos):
                (score_x + 2, score_y + 2))
     screen.blit(text_surface, (score_x, score_y))
 
+
+wood_texture = pygame.image.load("assets/back.png") #Carrega a imagem de fundo que está nos assets
+wood_texture = pygame.transform.scale(wood_texture, (WIDTH, HEIGHT))
+
+
 def render(screen, grid, blocks, score, GRID_SIZE, dragging_block=None, mouse_pos=None):
     """
     Main rendering function that composes all game elements.
@@ -161,7 +164,7 @@ def render(screen, grid, blocks, score, GRID_SIZE, dragging_block=None, mouse_po
     board_pos = calculate_board_position(GRID_SIZE)
     
     # Clear screen
-    screen.fill(WHITE)
+    screen.blit(wood_texture, (0,0))
     
     # Draw game elements
     draw_grid(screen, grid, GRID_SIZE, board_pos)
