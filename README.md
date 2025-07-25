@@ -1,5 +1,5 @@
 # Wood_block_game
-* Este projeto foi desenvolvido no âmbito da unidade curricular de EIACD (Elementos de Inteligência Artificial e Ciência de Dados), sob orientação dos professores Luís Paulo Reis e Miriam Santos
+* Este projeto foi desenvolvido no âmbito da unidade curricular de EIACD (Elementos de Inteligência Artificial), sob orientação dos professores Luís Paulo Reis e Miriam Santos
 * O jogo Wood Block é um puzzle de estratégia e raciocínio espacial, inspirado em clássicos como o Tetris e o Blokus.
 * O objetivo principal é posicionar peças de madeira num tabuleiro limitado, sem sobreposições, até preencher todo o espaço disponível.
 * Regras básicas:
